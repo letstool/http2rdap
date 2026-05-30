@@ -1,0 +1,1762 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/png" sizes="512x512" href="/favicon.png">
+<title>RDAP Query — CERT</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ══════════════════════════════════════════════════════════════════
+   MATERIAL DESIGN 3 — DESIGN TOKENS
+══════════════════════════════════════════════════════════════════ */
+:root {
+  --md-primary:               #9ECAFF;
+  --md-on-primary:            #003258;
+  --md-primary-container:     #00497D;
+  --md-on-primary-container:  #D1E4FF;
+  --md-secondary:             #BBC8DA;
+  --md-on-secondary:          #263141;
+  --md-secondary-container:   #3C4758;
+  --md-on-secondary-container:#D7E3F7;
+  --md-tertiary:              #4FD8E0;
+  --md-on-tertiary:           #00373D;
+  --md-tertiary-container:    #004F56;
+  --md-on-tertiary-container: #97F0F8;
+  --md-error:                 #FFB4AB;
+  --md-on-error:              #690005;
+  --md-error-container:       #93000A;
+  --md-on-error-container:    #FFDAD6;
+  --md-success:               #57D9A3;
+  --md-success-container:     #00513A;
+  --md-on-success-container:  #75F7BC;
+  --md-warning:               #FFB74D;
+  --md-warning-container:     #5A3900;
+  --md-on-warning-container:  #FFD9A0;
+  --md-background:               #111318;
+  --md-on-background:            #E2E2E6;
+  --md-surface:                  #111318;
+  --md-on-surface:               #E2E2E6;
+  --md-surface-variant:          #43474E;
+  --md-on-surface-variant:       #C3C7CF;
+  --md-surface-container-lowest: #0C0E11;
+  --md-surface-container-low:    #1A1C1E;
+  --md-surface-container:        #1E2025;
+  --md-surface-container-high:   #28292F;
+  --md-surface-container-highest:#33363F;
+  --md-outline:         #8D9199;
+  --md-outline-variant: #43474E;
+  --md-shape-xs:   4px;
+  --md-shape-sm:   8px;
+  --md-shape-md:   12px;
+  --md-shape-full: 100px;
+  --md-elev-1: 0 1px 2px rgba(0,0,0,.3),  0 1px 3px 1px rgba(0,0,0,.15);
+  --md-elev-2: 0 1px 2px rgba(0,0,0,.3),  0 2px 6px 2px rgba(0,0,0,.15);
+  --md-elev-3: 0 1px 3px rgba(0,0,0,.3),  0 4px 8px 3px rgba(0,0,0,.15);
+  --md-state-surface-hover: rgba(226,226,230,0.08);
+  --md-font:      'Roboto', sans-serif;
+  --md-font-mono: 'Roboto Mono', 'Courier New', monospace;
+  /* Legacy compat — used in JS renderRdapObject inline styles */
+  --bg:            var(--md-background);
+  --surface:       var(--md-surface-container);
+  --border:        var(--md-outline-variant);
+  --border-hi:     var(--md-outline);
+  --accent:        var(--md-primary);
+  --text:          var(--md-on-surface);
+  --text-dim:      var(--md-on-surface-variant);
+  --text-mid:      var(--md-on-surface-variant);
+  --ok:            var(--md-success);
+  --ok-dim:        var(--md-success-container);
+  --warn:          var(--md-warning);
+  --warn-dim:      var(--md-warning-container);
+  --err:           var(--md-error);
+  --err-dim:       var(--md-error-container);
+  --panel-tint:    rgba(158,202,255,0.06);
+  --raw-bg:        var(--md-surface-container-lowest);
+  --select-opt-bg: var(--md-surface-container-high);
+  --focus-ring:    var(--md-primary);
+  --mono:          var(--md-font-mono);
+  --sans:          var(--md-font);
+}
+[data-theme="light"] {
+  --md-primary:               #0061A4;
+  --md-on-primary:            #FFFFFF;
+  --md-primary-container:     #D1E4FF;
+  --md-on-primary-container:  #001D36;
+  --md-secondary:             #535F70;
+  --md-on-secondary:          #FFFFFF;
+  --md-secondary-container:   #D7E3F7;
+  --md-on-secondary-container:#101C2B;
+  --md-tertiary:              #006A6B;
+  --md-on-tertiary:           #FFFFFF;
+  --md-tertiary-container:    #9CF1F0;
+  --md-on-tertiary-container: #002020;
+  --md-error:                 #BA1A1A;
+  --md-on-error:              #FFFFFF;
+  --md-error-container:       #FFDAD6;
+  --md-on-error-container:    #410002;
+  --md-success:               #006C4C;
+  --md-success-container:     #8AF5C7;
+  --md-on-success-container:  #002115;
+  --md-warning:               #7B5000;
+  --md-warning-container:     #FFDDB3;
+  --md-on-warning-container:  #271900;
+  --md-background:               #FAFCFF;
+  --md-on-background:            #1A1C1E;
+  --md-surface:                  #F8F9FF;
+  --md-on-surface:               #1A1C1E;
+  --md-surface-variant:          #DFE2EB;
+  --md-on-surface-variant:       #43474E;
+  --md-surface-container-lowest: #FFFFFF;
+  --md-surface-container-low:    #F1F3FA;
+  --md-surface-container:        #EBEDF4;
+  --md-surface-container-high:   #E5E7EE;
+  --md-surface-container-highest:#DFE2E8;
+  --md-outline:         #73777F;
+  --md-outline-variant: #C3C7CF;
+  --md-elev-1: 0 1px 2px rgba(0,0,0,.12), 0 1px 3px 1px rgba(0,0,0,.06);
+  --md-elev-2: 0 1px 2px rgba(0,0,0,.12), 0 2px 6px 2px rgba(0,0,0,.06);
+  --md-elev-3: 0 1px 3px rgba(0,0,0,.12), 0 4px 8px 3px rgba(0,0,0,.06);
+  --md-state-surface-hover: rgba(26,28,30,0.08);
+  --panel-tint: rgba(0,97,164,0.06);
+  --raw-bg: var(--md-surface-container-lowest);
+  --select-opt-bg: var(--md-surface-container-low);
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+.skip-link {
+  position: absolute; top: -100px; left: 16px; z-index: 9999;
+  background: var(--md-primary); color: var(--md-on-primary);
+  font-family: var(--md-font); font-size: .875rem; font-weight: 500;
+  padding: 10px 24px; border-radius: var(--md-shape-full);
+  text-decoration: none; transition: top .2s;
+}
+.skip-link:focus { top: 8px; }
+:focus-visible { outline: 3px solid var(--md-primary); outline-offset: 2px; border-radius: var(--md-shape-xs); }
+:focus:not(:focus-visible) { outline: none; }
+body {
+  background: var(--md-background); color: var(--md-on-background);
+  font-family: var(--md-font); font-size: 1rem; line-height: 1.5;
+  min-height: 100vh; display: flex; flex-direction: column;
+  align-items: center; padding: 0 16px 80px;
+  transition: background .3s, color .3s;
+}
+[dir="rtl"] .panel-head::before  { margin-left: 0; margin-right: 10px; }
+[dir="rtl"] .result-time         { margin-inline-start: auto; margin-left: 0; }
+[dir="rtl"] .kv-table th         { text-align: right; }
+[dir="rtl"] .kv-table td         { text-align: right; }
+[dir="rtl"] .contact-card table th { text-align: right; }
+[dir="rtl"] .contact-card table td { text-align: right; }
+[dir="rtl"] select               { background-position: left 12px center; padding-left: 36px; padding-right: 14px; }
+header {
+  width: 100%; max-width: 900px;
+  padding: 16px 0; display: flex; align-items: center; gap: 16px;
+  margin-bottom: 24px;
+}
+.logo-shield { width: 34px; height: 38px; flex-shrink: 0; }
+.logo-shield path   { fill: none; stroke: var(--md-primary); stroke-width: 1.5; stroke-linejoin: round; transition: stroke .3s; }
+.logo-shield circle { fill: var(--md-primary); opacity: .9; transition: fill .3s; }
+.logo-shield line   { stroke: var(--md-primary); stroke-width: 1.5; stroke-linecap: round; transition: stroke .3s; }
+.header-text h1 { font-family: var(--md-font); font-size: 1.375rem; font-weight: 400; color: var(--md-on-surface); }
+.header-text p  { font-size: .75rem; color: var(--md-on-surface-variant); letter-spacing: .025em; margin-top: 2px; }
+.header-right   { margin-inline-start: auto; display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+.theme-toggle {
+  display: flex; align-items: center; gap: 8px; cursor: pointer;
+  background: var(--md-surface-container-high); border: none;
+  border-radius: var(--md-shape-full); padding: 8px 16px 8px 12px;
+  color: var(--md-on-surface-variant);
+  transition: background .2s, color .2s; position: relative; overflow: hidden;
+}
+.theme-toggle::after { content: ''; position: absolute; inset: 0; border-radius: inherit; background: var(--md-state-surface-hover); opacity: 0; transition: opacity .2s; }
+.theme-toggle:hover::after, .theme-toggle:focus-visible::after { opacity: 1; }
+.theme-toggle:hover { color: var(--md-on-surface); }
+.theme-icon { font-size: .9rem; line-height: 1; }
+.theme-track { width: 32px; height: 16px; background: var(--md-outline); border-radius: var(--md-shape-full); position: relative; flex-shrink: 0; transition: background .3s; }
+.theme-thumb { position: absolute; top: 2px; left: 2px; width: 12px; height: 12px; border-radius: 50%; background: var(--md-surface-container-highest); transition: transform .3s; }
+[data-theme="light"] .theme-track { background: var(--md-primary); }
+[data-theme="light"] .theme-thumb { background: var(--md-on-primary); transform: translateX(16px); }
+.theme-label { font-family: var(--md-font); font-size: .6875rem; font-weight: 500; white-space: nowrap; }
+.lang-select-wrap { position: relative; }
+#lang-select { display: none; }
+.lang-btn {
+  display: flex; align-items: center; gap: 8px;
+  background: var(--md-surface-container-high); border: 1px solid var(--md-outline);
+  border-radius: var(--md-shape-xs); color: var(--md-on-surface-variant);
+  font-family: var(--md-font); font-size: .875rem; padding: 8px 12px;
+  cursor: pointer; outline: none; min-height: 40px;
+  transition: border-color .2s, color .2s; position: relative; overflow: hidden; white-space: nowrap;
+}
+.lang-btn::after { content: ''; position: absolute; inset: 0; background: var(--md-state-surface-hover); opacity: 0; transition: opacity .2s; }
+.lang-btn:hover::after, .lang-btn.open::after { opacity: 1; }
+.lang-btn:hover, .lang-btn.open { border-color: var(--md-on-surface); color: var(--md-on-surface); }
+.lang-btn:focus-visible { border-color: var(--md-primary); border-width: 2px; outline: none; }
+.lang-flag-icon { font-size: 1.1rem; line-height: 1; flex-shrink: 0; }
+.lang-current-name { font-size: .8125rem; }
+.lang-chevron-icon { flex-shrink: 0; color: var(--md-on-surface-variant); transition: transform .2s; }
+.lang-btn.open .lang-chevron-icon { transform: rotate(180deg); }
+.lang-options {
+  position: absolute; top: calc(100% + 4px); right: 0;
+  background: var(--md-surface-container-high); border-radius: var(--md-shape-sm);
+  box-shadow: var(--md-elev-3); min-width: 220px; max-height: 320px; overflow-y: auto;
+  z-index: 1000; padding: 4px 0; list-style: none;
+  transform-origin: top right; animation: menuOpen .15s ease-out;
+}
+@keyframes menuOpen { from{opacity:0;transform:scale(.95) translateY(-4px)} to{opacity:1;transform:scale(1) translateY(0)} }
+.lang-options::-webkit-scrollbar { width: 4px; }
+.lang-options::-webkit-scrollbar-thumb { background: var(--md-outline-variant); border-radius: 2px; }
+.lang-option {
+  display: flex; align-items: center; gap: 12px; padding: 10px 16px;
+  cursor: pointer; font-family: var(--md-font); font-size: .875rem; color: var(--md-on-surface);
+  position: relative; user-select: none;
+}
+.lang-option::after { content: ''; position: absolute; inset: 0; background: var(--md-on-surface); opacity: 0; transition: opacity .12s; }
+.lang-option:hover::after { opacity: .08; }
+.lang-option[aria-selected="true"] { background: var(--md-primary-container); color: var(--md-on-primary-container); }
+.lang-option[aria-selected="true"]::after { display: none; }
+.lang-option .lang-flag-icon { font-size: 1.15rem; }
+main { width: 100%; max-width: 900px; }
+.panel { background: var(--md-surface-container); border: none; border-radius: var(--md-shape-md); overflow: hidden; margin-bottom: 16px; box-shadow: var(--md-elev-1); transition: background .3s; }
+.panel-head {
+  padding: 16px 24px; background: transparent; border-bottom: 1px solid var(--md-outline-variant);
+  display: flex; align-items: center; gap: 12px;
+  font-family: var(--md-font); font-size: 1rem; font-weight: 500;
+  color: var(--md-on-surface); transition: color .3s, border-color .3s;
+}
+.panel-head::before { content: ''; display: inline-block; width: 3px; height: 20px; background: var(--md-primary); border-radius: var(--md-shape-xs); flex-shrink: 0; transition: background .3s; }
+.panel-body { padding: 24px; }
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px 24px; }
+.form-group { display: flex; flex-direction: column; gap: 6px; }
+.form-group.full { grid-column: 1 / -1; }
+label {
+  font-family: var(--md-font); font-size: .75rem; font-weight: 500;
+  letter-spacing: .05em; text-transform: uppercase;
+  color: var(--md-on-surface-variant); transition: color .3s; cursor: pointer;
+}
+input, select {
+  background: transparent; border: 1px solid var(--md-outline); border-radius: var(--md-shape-xs);
+  color: var(--md-on-surface); font-family: var(--md-font-mono); font-size: .875rem;
+  padding: 12px 16px; outline: none; width: 100%;
+  appearance: none; -webkit-appearance: none; transition: border-color .2s; min-height: 48px;
+}
+input:hover:not(:focus-visible), select:hover:not(:focus-visible) { border-color: var(--md-on-surface); }
+input:focus-visible, select:focus-visible { border-color: var(--md-primary); border-width: 2px; padding: 11px 15px; outline: none; }
+input[aria-invalid="true"] { border-color: var(--md-error); border-width: 2px; padding: 11px 15px; }
+input::placeholder { color: var(--md-on-surface-variant); opacity: .7; }
+select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%238D9199' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 14px center; padding-right: 36px; cursor: pointer;
+}
+[data-theme="light"] select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2373777F' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+}
+select option { background: var(--md-surface-container-high); color: var(--md-on-surface); }
+.field-hint { font-family: var(--md-font); font-size: .75rem; color: var(--md-on-surface-variant); margin-top: 4px; }
+.qtype-group {
+  display: flex;
+  border: 1px solid var(--md-outline);
+  border-radius: var(--md-shape-full);
+  overflow: hidden; width: fit-content;
+  transition: border-color .3s;
+}
+.qtype-item {
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+  padding: 10px 20px;
+  font-family: var(--md-font); font-size: .875rem; font-weight: 500;
+  letter-spacing: .006em;
+  cursor: pointer; user-select: none;
+  color: var(--md-on-surface);
+  transition: background .15s, color .15s;
+  min-height: 40px; position: relative; overflow: hidden;
+  border: none; background: transparent;
+}
+.qtype-item + .qtype-item { border-left: 1px solid var(--md-outline); }
+.qtype-item::after { content: ''; position: absolute; inset: 0; background: currentColor; opacity: 0; transition: opacity .15s; }
+.qtype-item:hover::after { opacity: .08; }
+.qtype-item.checked {
+  background: var(--md-secondary-container);
+  color: var(--md-on-secondary-container);
+}
+.qtype-item:focus-within { outline: 2px solid var(--md-primary); outline-offset: -2px; z-index: 1; }
+.qtype-item input[type=radio] {
+  position: absolute; opacity: 0; width: 1px; height: 1px;
+  margin: -1px; overflow: hidden; clip: rect(0 0 0 0);
+}
+.qtype-icon  { font-size: .9rem; line-height: 1; flex-shrink: 0; opacity: .7; transition: opacity .15s; }
+.qtype-item.checked .qtype-icon { opacity: 1; }
+.qtype-label { line-height: 1; white-space: nowrap; }
+@media (max-width: 420px) {
+  .qtype-group { flex-wrap: wrap; border-radius: var(--md-shape-sm); }
+  .qtype-item  { padding: 10px 14px; font-size: .8125rem; }
+  .qtype-icon  { display: none; }
+  .qtype-item + .qtype-item { border-left: none; border-top: 1px solid var(--md-outline); }
+}
+.timeout-wrap { display: flex; align-items: center; gap: 16px; }
+.timeout-wrap input[type=range] {
+  flex: 1; padding: 0; border: none; cursor: pointer; min-height: 40px;
+  background: transparent; appearance: none; -webkit-appearance: none;
+}
+.timeout-wrap input[type=range]::-webkit-slider-runnable-track {
+  height: 4px; border-radius: 2px; background: var(--md-secondary-container); border: none;
+}
+.timeout-wrap input[type=range]::-moz-range-track {
+  height: 4px; border-radius: 2px; background: var(--md-secondary-container); border: none;
+}
+.timeout-wrap input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none; width: 20px; height: 20px; border-radius: 50%;
+  background: var(--md-primary); border: none; margin-top: -8px; cursor: pointer;
+  transition: box-shadow .2s;
+}
+.timeout-wrap input[type=range]:hover::-webkit-slider-thumb,
+.timeout-wrap input[type=range]:focus-visible::-webkit-slider-thumb {
+  box-shadow: 0 0 0 10px rgba(158,202,255,.12);
+}
+.timeout-wrap input[type=range]::-moz-range-thumb {
+  width: 20px; height: 20px; border-radius: 50%; background: var(--md-primary); border: none; cursor: pointer;
+}
+.timeout-wrap input[type=range]::-moz-range-progress { height: 4px; border-radius: 2px; background: var(--md-primary); }
+.timeout-val { font-family: var(--md-font); font-size: .875rem; font-weight: 500; color: var(--md-primary); min-width: 42px; text-align: right; }
+.submit-row { margin-top: 28px; display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+.btn-submit {
+  display: flex; align-items: center; gap: 8px;
+  background: var(--md-primary); color: var(--md-on-primary); border: none;
+  font-family: var(--md-font); font-size: .875rem; font-weight: 500; letter-spacing: .006em;
+  padding: 10px 24px; border-radius: var(--md-shape-full); cursor: pointer;
+  position: relative; overflow: hidden; transition: box-shadow .2s;
+  min-height: 40px; box-shadow: var(--md-elev-1);
+}
+.btn-submit::after { content: ''; position: absolute; inset: 0; background: rgba(255,255,255,0); transition: background .2s; }
+.btn-submit:hover::after { background: rgba(255,255,255,.08); }
+.btn-submit:hover { box-shadow: var(--md-elev-2); }
+.btn-submit:active { transform: scale(.98); box-shadow: none; }
+.btn-submit:disabled { opacity: .38; cursor: not-allowed; box-shadow: none; }
+.btn-submit:focus-visible { outline: 3px solid var(--md-primary); outline-offset: 3px; }
+.spinner { display: none; width: 16px; height: 16px; border: 2px solid rgba(255,255,255,.3); border-top-color: var(--md-on-primary); border-radius: 50%; animation: spin .7s linear infinite; }
+.loading .spinner { display: block; } .loading .send-icon { display: none; }
+.query-hint { font-family: var(--md-font); font-size: .75rem; color: var(--md-on-surface-variant); }
+.query-hint[role="alert"] { color: var(--md-warning); }
+#results-panel { display: none; }
+.result-meta { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
+.result-query-str { font-family: var(--md-font-mono); font-size: .8125rem; color: var(--md-on-surface-variant); }
+.result-time { margin-inline-start: auto; font-family: var(--md-font); font-size: .75rem; color: var(--md-on-surface-variant); }
+.badge {
+  font-family: var(--md-font); font-size: .6875rem; font-weight: 500;
+  letter-spacing: .05em; text-transform: uppercase;
+  padding: 4px 10px; border-radius: var(--md-shape-sm); border: none;
+}
+.badge-success  { background: var(--md-success-container); color: var(--md-on-success-container); }
+.badge-error    { background: var(--md-error-container);   color: var(--md-on-error-container); }
+.badge-notfound { background: var(--md-warning-container); color: var(--md-on-warning-container); }
+.result-overflow { overflow-x: auto; }
+.kv-table {
+  width: 100%; border-collapse: collapse;
+  font-family: var(--md-font-mono); font-size: .8125rem;
+  margin-bottom: 8px;
+}
+.kv-table th {
+  text-align: left; padding: 10px 16px 10px 12px; width: 36%;
+  font-family: var(--md-font); font-size: .6875rem; font-weight: 500;
+  letter-spacing: .05em; text-transform: uppercase;
+  color: var(--md-on-surface-variant);
+  border-bottom: 1px solid var(--md-outline-variant);
+  white-space: nowrap; vertical-align: top;
+  transition: color .3s, border-color .3s;
+}
+.kv-table td {
+  padding: 10px 12px; border-bottom: 1px solid var(--md-outline-variant);
+  color: var(--md-on-surface); word-break: break-all; vertical-align: top;
+  transition: background .15s, color .3s, border-color .3s;
+}
+.kv-table tr:last-child th,
+.kv-table tr:last-child td { border-bottom: none; }
+.kv-table tr:hover th,
+.kv-table tr:hover td { background: var(--md-state-surface-hover); }
+.kv-section-sep th {
+  background: var(--md-surface-container-high) !important;
+  color: var(--md-primary) !important;
+  font-family: var(--md-font); font-size: .6875rem; font-weight: 500;
+  letter-spacing: .07em; padding: 10px 12px;
+  border-top: 1px solid var(--md-outline-variant);
+  border-bottom: 1px solid var(--md-outline-variant);
+}
+.kv-section-sep td {
+  background: var(--md-surface-container-high) !important;
+  border-top: 1px solid var(--md-outline-variant);
+  border-bottom: 1px solid var(--md-outline-variant);
+}
+.kv-section-sep:hover th,
+.kv-section-sep:hover td { background: var(--md-surface-container-high) !important; }
+.val-ok   { color: var(--md-success)  !important; }
+.val-err  { color: var(--md-error)    !important; }
+.val-warn { color: var(--md-warning)  !important; }
+.val-acc  { color: var(--md-primary)  !important; }
+.val-dim  { color: var(--md-on-surface-variant) !important; }
+.val-list { display: flex; flex-direction: column; gap: 3px; }
+.val-list span { display: block; line-height: 1.5; }
+.contact-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 12px; margin-top: 8px;
+}
+.contact-card {
+  background: var(--md-surface-container-low);
+  border: 1px solid var(--md-outline-variant);
+  border-radius: var(--md-shape-sm);
+  overflow: hidden; transition: background .3s, border-color .3s;
+}
+.contact-card-head {
+  padding: 8px 14px;
+  background: var(--md-surface-container-high);
+  border-bottom: 1px solid var(--md-outline-variant);
+  font-family: var(--md-font); font-size: .6875rem; font-weight: 500;
+  letter-spacing: .07em; text-transform: uppercase;
+  color: var(--md-primary);
+  transition: background .3s, border-color .3s, color .3s;
+}
+.contact-card table {
+  width: 100%; border-collapse: collapse;
+  font-family: var(--md-font-mono); font-size: .8rem;
+}
+.contact-card table th {
+  text-align: left; padding: 7px 12px 7px 10px; width: 40%;
+  font-family: var(--md-font); font-size: .625rem; font-weight: 500;
+  letter-spacing: .05em; text-transform: uppercase;
+  color: var(--md-on-surface-variant);
+  border-bottom: 1px solid var(--md-outline-variant);
+  white-space: nowrap; vertical-align: top;
+}
+.contact-card table td {
+  padding: 7px 10px; color: var(--md-on-surface);
+  border-bottom: 1px solid var(--md-outline-variant);
+  word-break: break-all; vertical-align: top;
+  font-family: var(--md-font-mono); font-size: .8rem;
+}
+.contact-card table tr:last-child th,
+.contact-card table tr:last-child td { border-bottom: none; }
+.raw-details {
+  margin-top: 12px;
+  border: 1px solid var(--md-outline-variant);
+  border-radius: var(--md-shape-sm);
+  overflow: hidden;
+}
+.raw-details summary {
+  font-family: var(--md-font); font-size: .8125rem; font-weight: 500;
+  letter-spacing: .009em; color: var(--md-on-surface-variant);
+  cursor: pointer; padding: 12px 16px;
+  background: var(--md-surface-container-high);
+  list-style: none; display: flex; align-items: center; gap: 8px;
+  transition: background .2s, color .2s;
+  min-height: 44px; position: relative; overflow: hidden;
+}
+.raw-details summary::after { content: ''; position: absolute; inset: 0; background: var(--md-on-surface); opacity: 0; transition: opacity .2s; }
+.raw-details summary:hover::after { opacity: .08; }
+.raw-details summary:hover { color: var(--md-on-surface); }
+.raw-details summary::-webkit-details-marker { display: none; }
+.raw-details summary::marker { display: none; }
+.raw-details summary:focus-visible { outline: 2px solid var(--md-primary); outline-offset: -2px; }
+.raw-details summary::before {
+  content: '▶'; font-size: .5rem; flex-shrink: 0;
+  transition: transform .2s; color: var(--md-on-surface-variant);
+}
+.raw-details[open] summary::before { transform: rotate(90deg); }
+.raw-block {
+  background: var(--md-surface-container-lowest);
+  border-top: 1px solid var(--md-outline-variant);
+  padding: 16px 20px; font-family: var(--md-font-mono); font-size: .8125rem;
+  color: var(--md-on-surface-variant); white-space: pre-wrap; word-break: break-all;
+  line-height: 1.7; transition: background .3s;
+}
+.raw-block-standalone {
+  background: var(--md-surface-container-lowest);
+  border: 1px solid var(--md-outline-variant); border-radius: var(--md-shape-sm);
+  padding: 16px 20px; font-family: var(--md-font-mono); font-size: .8125rem;
+  color: var(--md-on-surface-variant); white-space: pre-wrap; word-break: break-all;
+  line-height: 1.7; transition: background .3s;
+}
+.no-answer {
+  text-align: center; padding: 40px; font-family: var(--md-font);
+  font-size: .875rem; color: var(--md-on-surface-variant);
+}
+.visually-hidden { position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important; }
+footer { margin-top: 64px; font-family: var(--md-font); font-size: .75rem; color: var(--md-on-surface-variant); letter-spacing: .03em; text-align: center; opacity: .5; }
+@keyframes spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms!important; transition-duration: .01ms!important; } }
+@media (forced-colors: active) {
+  .btn-submit { forced-color-adjust: none; }
+  .badge-success, .badge-error, .badge-notfound { forced-color-adjust: none; }
+  .qtype-item.checked { forced-color-adjust: none; border: 2px solid Highlight; }
+}
+@media (max-width: 580px) {
+  .form-grid { grid-template-columns: 1fr; }
+  .form-group.full { grid-column: 1; }
+  .theme-label { display: none; }
+  .contact-grid { grid-template-columns: 1fr; }
+  .panel-body { padding: 16px; }
+  .panel-head { padding: 14px 16px; }
+}
+</style>
+</head>
+<body>
+
+<a class="skip-link" href="#main-content" id="skip-link">Skip to main content</a>
+
+<header role="banner">
+  <svg class="logo-shield" viewBox="0 0 40 44" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+    <path d="M20 2L4 9v14c0 9 7 17.4 16 20 9-2.6 16-11 16-20V9L20 2z"/>
+    <circle cx="20" cy="22" r="5"/>
+    <line x1="20" y1="15" x2="20" y2="17"/>
+    <line x1="20" y1="27" x2="20" y2="29"/>
+    <line x1="13" y1="22" x2="15" y2="22"/>
+    <line x1="25" y1="22" x2="27" y2="22"/>
+  </svg>
+  <div class="header-text">
+    <h1 id="hdr-title">RDAP Query</h1>
+    <p id="hdr-subtitle" aria-live="polite"></p>
+  </div>
+  <div class="header-right">
+    <div class="lang-select-wrap" id="lang-dropdown-wrap">
+      <span class="visually-hidden" id="lang-select-label">Language</span>
+      <select id="lang-select" aria-hidden="true" tabindex="-1">
+        <option value="ar">ar</option><option value="bn">bn</option>
+        <option value="de">de</option><option value="en">en</option>
+        <option value="es">es</option><option value="fr">fr</option>
+        <option value="hi">hi</option><option value="id">id</option>
+        <option value="ja">ja</option><option value="ko">ko</option>
+        <option value="pt-BR">pt-BR</option><option value="ru">ru</option>
+        <option value="ur">ur</option><option value="vi">vi</option>
+        <option value="zh-CN">zh-CN</option>
+      </select>
+      <button class="lang-btn" id="lang-btn" aria-haspopup="listbox" aria-expanded="false" aria-labelledby="lang-select-label">
+        <span class="lang-flag-icon" id="lang-current-flag">🇬🇧</span>
+        <span class="lang-current-name" id="lang-current-name">English</span>
+        <svg class="lang-chevron-icon" width="12" height="8" viewBox="0 0 12 8" fill="none" aria-hidden="true">
+          <path d="M1 1l5 5 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+      <ul class="lang-options" id="lang-options" role="listbox" aria-labelledby="lang-select-label" hidden></ul>
+    </div>
+    <button class="theme-toggle" id="theme-toggle" role="switch" aria-checked="false" aria-label="Toggle color theme">
+      <span class="theme-icon" id="theme-icon" aria-hidden="true">☀️</span>
+      <div class="theme-track" aria-hidden="true"><div class="theme-thumb"></div></div>
+      <span class="theme-label" id="theme-label"></span>
+    </button>
+  </div>
+</header>
+
+<main id="main-content" role="main">
+
+  <div id="sr-status" aria-live="polite" aria-atomic="true"
+       style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;"></div>
+
+  <section class="panel" aria-labelledby="ph-params">
+    <div class="panel-head" id="ph-params" role="heading" aria-level="2"></div>
+    <div class="panel-body">
+      <form id="rdap-form" novalidate aria-label="RDAP query form">
+        <div class="form-grid">
+
+          <div class="form-group full">
+            <label for="query" id="lbl-query"></label>
+            <input type="text" id="query" name="query"
+                   autocomplete="off" spellcheck="false"
+                   aria-labelledby="lbl-query"
+                   aria-describedby="query-field-hint"
+                   aria-required="true" aria-invalid="false">
+            <span class="field-hint" id="query-field-hint"></span>
+          </div>
+
+          <div class="form-group">
+            <label id="lbl-query-type"></label>
+            <div class="qtype-group" role="radiogroup" aria-labelledby="lbl-query-type" id="qtype-group">
+              <label class="qtype-item checked" data-value="auto">
+                <input type="radio" name="query-type" value="auto" checked aria-label="Auto">
+                <span class="qtype-icon" aria-hidden="true">⌖</span>
+                <span class="qtype-label" id="opt-auto"></span>
+              </label>
+              <label class="qtype-item" data-value="domain">
+                <input type="radio" name="query-type" value="domain" aria-label="Domain">
+                <span class="qtype-icon" aria-hidden="true">⊞</span>
+                <span class="qtype-label" id="opt-domain"></span>
+              </label>
+              <label class="qtype-item" data-value="ip">
+                <input type="radio" name="query-type" value="ip" aria-label="IP">
+                <span class="qtype-icon" aria-hidden="true">⊕</span>
+                <span class="qtype-label">IP</span>
+              </label>
+              <label class="qtype-item" data-value="asn">
+                <input type="radio" name="query-type" value="asn" aria-label="ASN">
+                <span class="qtype-icon" aria-hidden="true">⊗</span>
+                <span class="qtype-label">ASN</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="timeout-slider" id="lbl-timeout"></label>
+            <div class="timeout-wrap">
+              <input type="range" id="timeout-slider" name="timeout"
+                     min="1" max="60" value="10" step="1"
+                     aria-labelledby="lbl-timeout"
+                     aria-valuemin="1" aria-valuemax="60" aria-valuenow="10"
+                     aria-valuetext="10 seconds">
+              <span class="timeout-val" id="timeout-val" aria-hidden="true">10 s</span>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="submit-row">
+          <button class="btn-submit" id="btn-query" type="submit" aria-describedby="submit-hint">
+            <svg class="send-icon" width="15" height="15" viewBox="0 0 24 24"
+                 fill="none" stroke="currentColor" stroke-width="2"
+                 stroke-linecap="round" stroke-linejoin="round"
+                 aria-hidden="true" focusable="false">
+              <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            </svg>
+            <div class="spinner" aria-hidden="true"></div>
+            <span id="btn-send-label"></span>
+          </button>
+          <span class="query-hint" id="submit-hint" aria-live="assertive" role="status"></span>
+        </div>
+      </form>
+    </div>
+  </section>
+
+  <section class="panel" id="results-panel" aria-labelledby="ph-results" aria-live="polite">
+    <div class="panel-head" id="ph-results" role="heading" aria-level="2"></div>
+    <div class="panel-body" id="results-body"></div>
+  </section>
+
+</main>
+
+<footer role="contentinfo" id="footer-text">RDAP Query Tool · CERT · v1.0</footer>
+
+<script>
+// ══════════════════════════════════════════════════════════════════
+// I18N
+// ══════════════════════════════════════════════════════════════════
+const LANGS = {
+  ar: {
+    pageTitle: 'RDAP — CERT',
+    subtitle: 'استخبارات التهديدات الإلكترونية · أداة استطلاع الشبكة',
+    themeLight: 'فاتح', themeDark: 'داكن',
+    skipLink: 'انتقل إلى المحتوى الرئيسي',
+    panelParams: 'معاملات الاستعلام',
+    labelQuery: 'الهدف (نطاق / IP / ASN)',
+    placeholderQuery: 'مثال: example.com أو 8.8.8.8 أو AS15169',
+    queryFieldHint: 'يستخدم بروتوكول RDAP عبر HTTPS — يكتشف الخادم تلقائياً',
+    labelQueryType: 'نوع الاستعلام',
+    optAuto: 'تلقائي', optDomain: 'نطاق',
+    labelTimeout: 'المهلة',
+    btnSend: 'تشغيل RDAP',
+    warnNoQuery: '⚠ أدخل هدفاً',
+    panelResults: 'النتائج',
+    notFound: 'غير موجود — لا تتوفر بيانات RDAP.',
+    errBadge: 'خطأ',
+    loadingLabel: 'جارٍ تنفيذ بحث RDAP…',
+    resultsReady: n => `اكتمل بحث RDAP، ${n} حقل.`,
+    secGeneral: 'عام', secRegistration: 'التسجيل', secDates: 'التواريخ',
+    secNameservers: 'خوادم الأسماء', secContacts: 'جهات الاتصال',
+    secNetwork: 'الشبكة', secRaw: 'بيانات RDAP الخام', secRemarks: 'ملاحظات',
+    fldQuery: 'الاستعلام', fldQueryType: 'النوع', fldRdapServer: 'خادم RDAP',
+    fldHandle: 'المعرّف', fldSelfLink: 'رابط RDAP',
+    fldLdhName: 'النطاق (ASCII)', fldUnicodeName: 'النطاق (Unicode)',
+    fldRegistrar: 'المسجّل', fldRegistrarURL: 'موقع المسجّل',
+    fldCreated: 'تاريخ الإنشاء', fldUpdated: 'تاريخ التحديث', fldExpires: 'تاريخ الانتهاء',
+    fldDelegationSigned: 'DNSSEC', fldStatus: 'الحالة',
+    fldNetwork: 'الشبكة', fldStartAddress: 'عنوان البداية', fldEndAddress: 'عنوان النهاية',
+    fldIPVersion: 'إصدار IP', fldCIDRs: 'نطاقات CIDR',
+    fldStartAutnum: 'ASN البداية', fldEndAutnum: 'ASN النهاية',
+    fldName: 'الاسم', fldType: 'النوع', fldCountry: 'الدولة',
+    fldOrg: 'المنظمة', fldEmail: 'البريد الإلكتروني',
+    fldPhone: 'الهاتف', fldFax: 'الفاكس', fldAddress: 'العنوان',
+    fldCity: 'المدينة', fldState: 'الولاية', fldPostal: 'الرمز البريدي',
+    contactRegistrant: 'المسجّل', contactAdmin: 'المشرف', contactTech: 'التقني', contactAbuse: 'البلاغات',
+    yes: 'نعم', no: 'لا', dir: 'rtl',
+  },
+  bn: {
+    pageTitle: 'RDAP — CERT',
+    subtitle: 'সাইবার হুমকি গোয়েন্দা · নেটওয়ার্ক রিকন টুল',
+    themeLight: 'হালকা', themeDark: 'গাঢ়',
+    skipLink: 'মূল বিষয়বস্তুতে যান',
+    panelParams: 'কোয়েরি প্যারামিটার',
+    labelQuery: 'লক্ষ্য (ডোমেইন / IP / ASN)',
+    placeholderQuery: 'যেমন: example.com বা 8.8.8.8 বা AS15169',
+    queryFieldHint: 'RDAP প্রোটোকল HTTPS ব্যবহার করে — সার্ভার স্বয়ংক্রিয়ভাবে আবিষ্কৃত হয়',
+    labelQueryType: 'কোয়েরি ধরন',
+    optAuto: 'স্বয়ংক্রিয়', optDomain: 'ডোমেইন',
+    labelTimeout: 'টাইমআউট',
+    btnSend: 'RDAP চালান',
+    warnNoQuery: '⚠ একটি লক্ষ্য লিখুন',
+    panelResults: 'ফলাফল',
+    notFound: 'পাওয়া যায়নি — কোনো RDAP ডেটা নেই।',
+    errBadge: 'ত্রুটি',
+    loadingLabel: 'RDAP অনুসন্ধান চলছে…',
+    resultsReady: n => `RDAP সম্পন্ন, ${n}টি ক্ষেত্র।`,
+    secGeneral: 'সাধারণ', secRegistration: 'নিবন্ধন', secDates: 'তারিখ',
+    secNameservers: 'নেমসার্ভার', secContacts: 'যোগাযোগ',
+    secNetwork: 'নেটওয়ার্ক', secRaw: 'RDAP কাঁচা ডেটা', secRemarks: 'মন্তব্য',
+    fldQuery: 'কোয়েরি', fldQueryType: 'ধরন', fldRdapServer: 'RDAP সার্ভার',
+    fldHandle: 'হ্যান্ডেল', fldSelfLink: 'RDAP লিঙ্ক',
+    fldLdhName: 'ডোমেইন (ASCII)', fldUnicodeName: 'ডোমেইন (Unicode)',
+    fldRegistrar: 'রেজিস্ট্রার', fldRegistrarURL: 'রেজিস্ট্রার URL',
+    fldCreated: 'তৈরির তারিখ', fldUpdated: 'আপডেটের তারিখ', fldExpires: 'মেয়াদ শেষ',
+    fldDelegationSigned: 'DNSSEC', fldStatus: 'স্ট্যাটাস',
+    fldNetwork: 'নেটওয়ার্ক', fldStartAddress: 'শুরুর ঠিকানা', fldEndAddress: 'শেষ ঠিকানা',
+    fldIPVersion: 'IP সংস্করণ', fldCIDRs: 'CIDR',
+    fldStartAutnum: 'শুরু ASN', fldEndAutnum: 'শেষ ASN',
+    fldName: 'নাম', fldType: 'ধরন', fldCountry: 'দেশ',
+    fldOrg: 'সংস্থা', fldEmail: 'ইমেইল',
+    fldPhone: 'ফোন', fldFax: 'ফ্যাক্স', fldAddress: 'ঠিকানা',
+    fldCity: 'শহর', fldState: 'রাজ্য', fldPostal: 'পোস্টাল কোড',
+    contactRegistrant: 'নিবন্ধনকারী', contactAdmin: 'প্রশাসক', contactTech: 'প্রযুক্তি', contactAbuse: 'অভিযোগ',
+    yes: 'হ্যাঁ', no: 'না', dir: 'ltr',
+  },
+  de: {
+    pageTitle: 'RDAP — CERT',
+    subtitle: 'Cyber Threat Intelligence · Netzwerk-Recon-Tool',
+    themeLight: 'Hell', themeDark: 'Dunkel',
+    skipLink: 'Zum Hauptinhalt springen',
+    panelParams: 'Abfrageparameter',
+    labelQuery: 'Ziel (Domain / IP / ASN)',
+    placeholderQuery: 'z. B.: example.com, 8.8.8.8 oder AS15169',
+    queryFieldHint: 'RDAP-Protokoll über HTTPS — Server wird automatisch ermittelt',
+    labelQueryType: 'Anfragetyp',
+    optAuto: 'Automatisch', optDomain: 'Domain',
+    labelTimeout: 'Timeout',
+    btnSend: 'RDAP ausführen',
+    warnNoQuery: '⚠ Ziel eingeben',
+    panelResults: 'Ergebnisse',
+    notFound: 'Nicht gefunden — keine RDAP-Daten verfügbar.',
+    errBadge: 'FEHLER',
+    loadingLabel: 'RDAP-Abfrage läuft…',
+    resultsReady: n => `RDAP abgeschlossen, ${n} Feld(er).`,
+    secGeneral: 'Allgemein', secRegistration: 'Registrierung', secDates: 'Daten',
+    secNameservers: 'Nameserver', secContacts: 'Kontakte',
+    secNetwork: 'Netzwerk', secRaw: 'RDAP-Rohdaten', secRemarks: 'Hinweise',
+    fldQuery: 'Abfrage', fldQueryType: 'Typ', fldRdapServer: 'RDAP-Server',
+    fldHandle: 'Handle', fldSelfLink: 'RDAP-Link',
+    fldLdhName: 'Domain (ASCII)', fldUnicodeName: 'Domain (Unicode)',
+    fldRegistrar: 'Registrar', fldRegistrarURL: 'Registrar-URL',
+    fldCreated: 'Erstellt', fldUpdated: 'Aktualisiert', fldExpires: 'Läuft ab',
+    fldDelegationSigned: 'DNSSEC', fldStatus: 'Status',
+    fldNetwork: 'Netzwerk', fldStartAddress: 'Startadresse', fldEndAddress: 'Endadresse',
+    fldIPVersion: 'IP-Version', fldCIDRs: 'CIDRs',
+    fldStartAutnum: 'Start-ASN', fldEndAutnum: 'End-ASN',
+    fldName: 'Name', fldType: 'Typ', fldCountry: 'Land',
+    fldOrg: 'Organisation', fldEmail: 'E-Mail',
+    fldPhone: 'Telefon', fldFax: 'Fax', fldAddress: 'Adresse',
+    fldCity: 'Stadt', fldState: 'Bundesland', fldPostal: 'Postleitzahl',
+    contactRegistrant: 'Registrant', contactAdmin: 'Admin', contactTech: 'Technisch', contactAbuse: 'Missbrauch',
+    yes: 'Ja', no: 'Nein', dir: 'ltr',
+  },
+  en: {
+    pageTitle: 'RDAP Query — CERT',
+    subtitle: 'Cyber Threat Intelligence · Network Recon Tool',
+    themeLight: 'Light', themeDark: 'Dark',
+    skipLink: 'Skip to main content',
+    panelParams: 'Query Parameters',
+    labelQuery: 'Target (Domain / IP / ASN)',
+    placeholderQuery: 'e.g.: example.com, 8.8.8.8 or AS15169',
+    queryFieldHint: 'RDAP protocol over HTTPS — server auto-discovered via IANA bootstrap',
+    labelQueryType: 'Query Type',
+    optAuto: 'Auto', optDomain: 'Domain',
+    labelTimeout: 'Timeout',
+    btnSend: 'Run RDAP',
+    warnNoQuery: '⚠ Enter a target',
+    panelResults: 'Results',
+    notFound: 'Not Found — no RDAP data available.',
+    errBadge: 'ERROR',
+    loadingLabel: 'Running RDAP lookup…',
+    resultsReady: n => `RDAP lookup complete, ${n} field(s).`,
+    secGeneral: 'General', secRegistration: 'Registration', secDates: 'Dates',
+    secNameservers: 'Name Servers', secContacts: 'Contacts',
+    secNetwork: 'Network', secRaw: 'Raw RDAP', secRemarks: 'Remarks',
+    fldQuery: 'Query', fldQueryType: 'Type', fldRdapServer: 'RDAP Server',
+    fldHandle: 'Handle', fldSelfLink: 'RDAP URL',
+    fldLdhName: 'Domain (ASCII)', fldUnicodeName: 'Domain (Unicode)',
+    fldRegistrar: 'Registrar', fldRegistrarURL: 'Registrar URL',
+    fldCreated: 'Created', fldUpdated: 'Updated', fldExpires: 'Expires',
+    fldDelegationSigned: 'DNSSEC', fldStatus: 'Status',
+    fldNetwork: 'Network', fldStartAddress: 'Start Address', fldEndAddress: 'End Address',
+    fldIPVersion: 'IP Version', fldCIDRs: 'CIDR(s)',
+    fldStartAutnum: 'Start ASN', fldEndAutnum: 'End ASN',
+    fldName: 'Name', fldType: 'Type', fldCountry: 'Country',
+    fldOrg: 'Organization', fldEmail: 'Email',
+    fldPhone: 'Phone', fldFax: 'Fax', fldAddress: 'Address',
+    fldCity: 'City', fldState: 'State', fldPostal: 'Postal Code',
+    contactRegistrant: 'Registrant', contactAdmin: 'Admin', contactTech: 'Technical', contactAbuse: 'Abuse',
+    yes: 'Yes', no: 'No', dir: 'ltr',
+  },
+  es: {
+    pageTitle: 'RDAP — CERT',
+    subtitle: 'Inteligencia de Amenazas · Herramienta de Reconocimiento',
+    themeLight: 'Claro', themeDark: 'Oscuro',
+    skipLink: 'Saltar al contenido principal',
+    panelParams: 'Parámetros de Consulta',
+    labelQuery: 'Objetivo (Dominio / IP / ASN)',
+    placeholderQuery: 'ej.: example.com, 8.8.8.8 o AS15169',
+    queryFieldHint: 'Protocolo RDAP vía HTTPS — servidor descubierto automáticamente',
+    labelQueryType: 'Tipo de Consulta',
+    optAuto: 'Auto', optDomain: 'Dominio',
+    labelTimeout: 'Tiempo límite',
+    btnSend: 'Ejecutar RDAP',
+    warnNoQuery: '⚠ Introduce un objetivo',
+    panelResults: 'Resultados',
+    notFound: 'No encontrado — no hay datos RDAP disponibles.',
+    errBadge: 'ERROR',
+    loadingLabel: 'Ejecutando búsqueda RDAP…',
+    resultsReady: n => `Búsqueda RDAP completada, ${n} campo(s).`,
+    secGeneral: 'General', secRegistration: 'Registro', secDates: 'Fechas',
+    secNameservers: 'Servidores de Nombres', secContacts: 'Contactos',
+    secNetwork: 'Red', secRaw: 'RDAP Bruto', secRemarks: 'Observaciones',
+    fldQuery: 'Consulta', fldQueryType: 'Tipo', fldRdapServer: 'Servidor RDAP',
+    fldHandle: 'Handle', fldSelfLink: 'URL RDAP',
+    fldLdhName: 'Dominio (ASCII)', fldUnicodeName: 'Dominio (Unicode)',
+    fldRegistrar: 'Registrador', fldRegistrarURL: 'URL del Registrador',
+    fldCreated: 'Creado', fldUpdated: 'Actualizado', fldExpires: 'Vence',
+    fldDelegationSigned: 'DNSSEC', fldStatus: 'Estado',
+    fldNetwork: 'Red', fldStartAddress: 'Dirección inicio', fldEndAddress: 'Dirección fin',
+    fldIPVersion: 'Versión IP', fldCIDRs: 'CIDR(s)',
+    fldStartAutnum: 'ASN inicio', fldEndAutnum: 'ASN fin',
+    fldName: 'Nombre', fldType: 'Tipo', fldCountry: 'País',
+    fldOrg: 'Organización', fldEmail: 'Email',
+    fldPhone: 'Teléfono', fldFax: 'Fax', fldAddress: 'Dirección',
+    fldCity: 'Ciudad', fldState: 'Estado', fldPostal: 'Código Postal',
+    contactRegistrant: 'Registrante', contactAdmin: 'Admin', contactTech: 'Técnico', contactAbuse: 'Abuso',
+    yes: 'Sí', no: 'No', dir: 'ltr',
+  },
+  fr: {
+    pageTitle: 'RDAP — CERT',
+    subtitle: 'Cyber Threat Intelligence · Outil de reconnaissance réseau',
+    themeLight: 'Clair', themeDark: 'Sombre',
+    skipLink: 'Aller au contenu principal',
+    panelParams: 'Paramètres de la requête',
+    labelQuery: 'Cible (domaine / IP / ASN)',
+    placeholderQuery: 'ex : example.com, 8.8.8.8 ou AS15169',
+    queryFieldHint: 'Protocole RDAP via HTTPS — serveur découvert automatiquement',
+    labelQueryType: 'Type de requête',
+    optAuto: 'Auto', optDomain: 'Domaine',
+    labelTimeout: 'Timeout',
+    btnSend: 'Lancer RDAP',
+    warnNoQuery: '⚠ Saisissez une cible',
+    panelResults: 'Résultats',
+    notFound: 'Non trouvé — aucune donnée RDAP disponible.',
+    errBadge: 'ERREUR',
+    loadingLabel: 'Recherche RDAP en cours…',
+    resultsReady: n => `Recherche RDAP terminée, ${n} champ(s).`,
+    secGeneral: 'Général', secRegistration: 'Enregistrement', secDates: 'Dates',
+    secNameservers: 'Serveurs de noms', secContacts: 'Contacts',
+    secNetwork: 'Réseau', secRaw: 'RDAP brut', secRemarks: 'Remarques',
+    fldQuery: 'Requête', fldQueryType: 'Type', fldRdapServer: 'Serveur RDAP',
+    fldHandle: 'Handle', fldSelfLink: 'URL RDAP',
+    fldLdhName: 'Domaine (ASCII)', fldUnicodeName: 'Domaine (Unicode)',
+    fldRegistrar: 'Registrar', fldRegistrarURL: 'URL du registrar',
+    fldCreated: 'Créé le', fldUpdated: 'Mis à jour le', fldExpires: 'Expire le',
+    fldDelegationSigned: 'DNSSEC', fldStatus: 'Statut',
+    fldNetwork: 'Réseau', fldStartAddress: 'Adresse début', fldEndAddress: 'Adresse fin',
+    fldIPVersion: 'Version IP', fldCIDRs: 'CIDR(s)',
+    fldStartAutnum: 'ASN début', fldEndAutnum: 'ASN fin',
+    fldName: 'Nom', fldType: 'Type', fldCountry: 'Pays',
+    fldOrg: 'Organisation', fldEmail: 'Email',
+    fldPhone: 'Téléphone', fldFax: 'Fax', fldAddress: 'Adresse',
+    fldCity: 'Ville', fldState: 'Région', fldPostal: 'Code postal',
+    contactRegistrant: 'Titulaire', contactAdmin: 'Admin', contactTech: 'Technique', contactAbuse: 'Abus',
+    yes: 'Oui', no: 'Non', dir: 'ltr',
+  },
+  hi: {
+    pageTitle: 'RDAP — CERT',
+    subtitle: 'साइबर खतरा खुफिया · नेटवर्क टोही उपकरण',
+    themeLight: 'हल्का', themeDark: 'गहरा',
+    skipLink: 'मुख्य सामग्री पर जाएं',
+    panelParams: 'क्वेरी पैरामीटर',
+    labelQuery: 'लक्ष्य (डोमेन / IP / ASN)',
+    placeholderQuery: 'उदा: example.com, 8.8.8.8 या AS15169',
+    queryFieldHint: 'RDAP प्रोटोकॉल HTTPS पर — सर्वर स्वतः खोजा जाता है',
+    labelQueryType: 'क्वेरी प्रकार',
+    optAuto: 'स्वतः', optDomain: 'डोमेन',
+    labelTimeout: 'टाइमआउट',
+    btnSend: 'RDAP चलाएं',
+    warnNoQuery: '⚠ लक्ष्य दर्ज करें',
+    panelResults: 'परिणाम',
+    notFound: 'नहीं मिला — RDAP डेटा उपलब्ध नहीं।',
+    errBadge: 'त्रुटि',
+    loadingLabel: 'RDAP खोज चल रही है…',
+    resultsReady: n => `RDAP खोज पूर्ण, ${n} फ़ील्ड।`,
+    secGeneral: 'सामान्य', secRegistration: 'पंजीकरण', secDates: 'तिथियाँ',
+    secNameservers: 'नेमसर्वर', secContacts: 'संपर्क',
+    secNetwork: 'नेटवर्क', secRaw: 'RDAP कच्चा डेटा', secRemarks: 'टिप्पणियाँ',
+    fldQuery: 'क्वेरी', fldQueryType: 'प्रकार', fldRdapServer: 'RDAP सर्वर',
+    fldHandle: 'हैंडल', fldSelfLink: 'RDAP URL',
+    fldLdhName: 'डोमेन (ASCII)', fldUnicodeName: 'डोमेन (Unicode)',
+    fldRegistrar: 'रजिस्ट्रार', fldRegistrarURL: 'रजिस्ट्रार URL',
+    fldCreated: 'बनाया गया', fldUpdated: 'अपडेट किया', fldExpires: 'समाप्त होता है',
+    fldDelegationSigned: 'DNSSEC', fldStatus: 'स्थिति',
+    fldNetwork: 'नेटवर्क', fldStartAddress: 'प्रारंभ पता', fldEndAddress: 'अंत पता',
+    fldIPVersion: 'IP संस्करण', fldCIDRs: 'CIDR',
+    fldStartAutnum: 'ASN प्रारंभ', fldEndAutnum: 'ASN अंत',
+    fldName: 'नाम', fldType: 'प्रकार', fldCountry: 'देश',
+    fldOrg: 'संगठन', fldEmail: 'ईमेल',
+    fldPhone: 'फ़ोन', fldFax: 'फ़ैक्स', fldAddress: 'पता',
+    fldCity: 'शहर', fldState: 'राज्य', fldPostal: 'पिन कोड',
+    contactRegistrant: 'पंजीयक', contactAdmin: 'व्यवस्थापक', contactTech: 'तकनीकी', contactAbuse: 'शिकायत',
+    yes: 'हाँ', no: 'नहीं', dir: 'ltr',
+  },
+  id: {
+    pageTitle: 'RDAP — CERT',
+    subtitle: 'Intelijen Ancaman Siber · Alat Rekon Jaringan',
+    themeLight: 'Terang', themeDark: 'Gelap',
+    skipLink: 'Lewati ke konten utama',
+    panelParams: 'Parameter Kueri',
+    labelQuery: 'Target (Domain / IP / ASN)',
+    placeholderQuery: 'mis.: example.com, 8.8.8.8 atau AS15169',
+    queryFieldHint: 'Protokol RDAP via HTTPS — server ditemukan otomatis',
+    labelQueryType: 'Jenis Kueri',
+    optAuto: 'Otomatis', optDomain: 'Domain',
+    labelTimeout: 'Batas Waktu',
+    btnSend: 'Jalankan RDAP',
+    warnNoQuery: '⚠ Masukkan target',
+    panelResults: 'Hasil',
+    notFound: 'Tidak Ditemukan — tidak ada data RDAP.',
+    errBadge: 'KESALAHAN',
+    loadingLabel: 'Menjalankan pencarian RDAP…',
+    resultsReady: n => `Pencarian RDAP selesai, ${n} kolom.`,
+    secGeneral: 'Umum', secRegistration: 'Registrasi', secDates: 'Tanggal',
+    secNameservers: 'Server Nama', secContacts: 'Kontak',
+    secNetwork: 'Jaringan', secRaw: 'RDAP Mentah', secRemarks: 'Catatan',
+    fldQuery: 'Kueri', fldQueryType: 'Jenis', fldRdapServer: 'Server RDAP',
+    fldHandle: 'Handle', fldSelfLink: 'URL RDAP',
+    fldLdhName: 'Domain (ASCII)', fldUnicodeName: 'Domain (Unicode)',
+    fldRegistrar: 'Registrar', fldRegistrarURL: 'URL Registrar',
+    fldCreated: 'Dibuat', fldUpdated: 'Diperbarui', fldExpires: 'Kedaluwarsa',
+    fldDelegationSigned: 'DNSSEC', fldStatus: 'Status',
+    fldNetwork: 'Jaringan', fldStartAddress: 'Alamat Awal', fldEndAddress: 'Alamat Akhir',
+    fldIPVersion: 'Versi IP', fldCIDRs: 'CIDR',
+    fldStartAutnum: 'ASN Awal', fldEndAutnum: 'ASN Akhir',
+    fldName: 'Nama', fldType: 'Jenis', fldCountry: 'Negara',
+    fldOrg: 'Organisasi', fldEmail: 'Email',
+    fldPhone: 'Telepon', fldFax: 'Faks', fldAddress: 'Alamat',
+    fldCity: 'Kota', fldState: 'Provinsi', fldPostal: 'Kode Pos',
+    contactRegistrant: 'Pendaftar', contactAdmin: 'Admin', contactTech: 'Teknis', contactAbuse: 'Penyalahgunaan',
+    yes: 'Ya', no: 'Tidak', dir: 'ltr',
+  },
+  ja: {
+    pageTitle: 'RDAP — CERT',
+    subtitle: 'サイバー脅威インテリジェンス · ネットワーク偵察ツール',
+    themeLight: 'ライト', themeDark: 'ダーク',
+    skipLink: 'メインコンテンツへスキップ',
+    panelParams: 'クエリパラメータ',
+    labelQuery: 'ターゲット (ドメイン / IP / ASN)',
+    placeholderQuery: '例: example.com, 8.8.8.8 または AS15169',
+    queryFieldHint: 'RDAP プロトコル HTTPS 経由 — サーバーは自動的に検出されます',
+    labelQueryType: 'クエリタイプ',
+    optAuto: '自動', optDomain: 'ドメイン',
+    labelTimeout: 'タイムアウト',
+    btnSend: 'RDAP 実行',
+    warnNoQuery: '⚠ ターゲットを入力してください',
+    panelResults: '結果',
+    notFound: '見つかりません — RDAP データなし。',
+    errBadge: 'エラー',
+    loadingLabel: 'RDAP 検索中…',
+    resultsReady: n => `RDAP 完了、${n} フィールド。`,
+    secGeneral: '一般', secRegistration: '登録情報', secDates: '日付',
+    secNameservers: 'ネームサーバー', secContacts: '連絡先',
+    secNetwork: 'ネットワーク', secRaw: 'RDAP 生データ', secRemarks: '注記',
+    fldQuery: 'クエリ', fldQueryType: 'タイプ', fldRdapServer: 'RDAP サーバー',
+    fldHandle: 'ハンドル', fldSelfLink: 'RDAP URL',
+    fldLdhName: 'ドメイン (ASCII)', fldUnicodeName: 'ドメイン (Unicode)',
+    fldRegistrar: 'レジストラ', fldRegistrarURL: 'レジストラ URL',
+    fldCreated: '作成日', fldUpdated: '更新日', fldExpires: '有効期限',
+    fldDelegationSigned: 'DNSSEC', fldStatus: 'ステータス',
+    fldNetwork: 'ネットワーク', fldStartAddress: '開始アドレス', fldEndAddress: '終了アドレス',
+    fldIPVersion: 'IP バージョン', fldCIDRs: 'CIDR',
+    fldStartAutnum: 'ASN 開始', fldEndAutnum: 'ASN 終了',
+    fldName: '名前', fldType: 'タイプ', fldCountry: '国',
+    fldOrg: '組織', fldEmail: 'メール',
+    fldPhone: '電話', fldFax: 'FAX', fldAddress: '住所',
+    fldCity: '市区町村', fldState: '都道府県', fldPostal: '郵便番号',
+    contactRegistrant: '登録者', contactAdmin: '管理者', contactTech: '技術担当', contactAbuse: '不正使用',
+    yes: 'はい', no: 'いいえ', dir: 'ltr',
+  },
+  ko: {
+    pageTitle: 'RDAP — CERT',
+    subtitle: '사이버 위협 인텔리전스 · 네트워크 정찰 도구',
+    themeLight: '라이트', themeDark: '다크',
+    skipLink: '본문으로 건너뛰기',
+    panelParams: '쿼리 매개변수',
+    labelQuery: '대상 (도메인 / IP / ASN)',
+    placeholderQuery: '예: example.com, 8.8.8.8 또는 AS15169',
+    queryFieldHint: 'RDAP 프로토콜 HTTPS 사용 — 서버 자동 검색',
+    labelQueryType: '쿼리 유형',
+    optAuto: '자동', optDomain: '도메인',
+    labelTimeout: '타임아웃',
+    btnSend: 'RDAP 실행',
+    warnNoQuery: '⚠ 대상을 입력하세요',
+    panelResults: '결과',
+    notFound: '찾을 수 없음 — RDAP 데이터가 없습니다.',
+    errBadge: '오류',
+    loadingLabel: 'RDAP 조회 중…',
+    resultsReady: n => `RDAP 완료, ${n}개 필드.`,
+    secGeneral: '일반', secRegistration: '등록', secDates: '날짜',
+    secNameservers: '네임서버', secContacts: '연락처',
+    secNetwork: '네트워크', secRaw: 'RDAP 원시 데이터', secRemarks: '비고',
+    fldQuery: '쿼리', fldQueryType: '유형', fldRdapServer: 'RDAP 서버',
+    fldHandle: '핸들', fldSelfLink: 'RDAP URL',
+    fldLdhName: '도메인 (ASCII)', fldUnicodeName: '도메인 (Unicode)',
+    fldRegistrar: '레지스트라', fldRegistrarURL: '레지스트라 URL',
+    fldCreated: '생성일', fldUpdated: '수정일', fldExpires: '만료일',
+    fldDelegationSigned: 'DNSSEC', fldStatus: '상태',
+    fldNetwork: '네트워크', fldStartAddress: '시작 주소', fldEndAddress: '종료 주소',
+    fldIPVersion: 'IP 버전', fldCIDRs: 'CIDR',
+    fldStartAutnum: 'ASN 시작', fldEndAutnum: 'ASN 종료',
+    fldName: '이름', fldType: '유형', fldCountry: '국가',
+    fldOrg: '조직', fldEmail: '이메일',
+    fldPhone: '전화', fldFax: '팩스', fldAddress: '주소',
+    fldCity: '도시', fldState: '주/도', fldPostal: '우편번호',
+    contactRegistrant: '등록자', contactAdmin: '관리자', contactTech: '기술', contactAbuse: '신고',
+    yes: '예', no: '아니요', dir: 'ltr',
+  },
+  'pt-BR': {
+    pageTitle: 'RDAP — CERT',
+    subtitle: 'Inteligência de Ameaças · Ferramenta de Reconhecimento',
+    themeLight: 'Claro', themeDark: 'Escuro',
+    skipLink: 'Pular para o conteúdo principal',
+    panelParams: 'Parâmetros da Consulta',
+    labelQuery: 'Alvo (Domínio / IP / ASN)',
+    placeholderQuery: 'ex.: example.com, 8.8.8.8 ou AS15169',
+    queryFieldHint: 'Protocolo RDAP via HTTPS — servidor descoberto automaticamente',
+    labelQueryType: 'Tipo de Consulta',
+    optAuto: 'Auto', optDomain: 'Domínio',
+    labelTimeout: 'Tempo limite',
+    btnSend: 'Executar RDAP',
+    warnNoQuery: '⚠ Informe um alvo',
+    panelResults: 'Resultados',
+    notFound: 'Não encontrado — nenhum dado RDAP disponível.',
+    errBadge: 'ERRO',
+    loadingLabel: 'Executando busca RDAP…',
+    resultsReady: n => `Busca RDAP concluída, ${n} campo(s).`,
+    secGeneral: 'Geral', secRegistration: 'Registro', secDates: 'Datas',
+    secNameservers: 'Servidores de Nome', secContacts: 'Contatos',
+    secNetwork: 'Rede', secRaw: 'RDAP Bruto', secRemarks: 'Observações',
+    fldQuery: 'Consulta', fldQueryType: 'Tipo', fldRdapServer: 'Servidor RDAP',
+    fldHandle: 'Handle', fldSelfLink: 'URL RDAP',
+    fldLdhName: 'Domínio (ASCII)', fldUnicodeName: 'Domínio (Unicode)',
+    fldRegistrar: 'Registrador', fldRegistrarURL: 'URL do Registrador',
+    fldCreated: 'Criado', fldUpdated: 'Atualizado', fldExpires: 'Expira',
+    fldDelegationSigned: 'DNSSEC', fldStatus: 'Status',
+    fldNetwork: 'Rede', fldStartAddress: 'Endereço inicial', fldEndAddress: 'Endereço final',
+    fldIPVersion: 'Versão IP', fldCIDRs: 'CIDR(s)',
+    fldStartAutnum: 'ASN inicial', fldEndAutnum: 'ASN final',
+    fldName: 'Nome', fldType: 'Tipo', fldCountry: 'País',
+    fldOrg: 'Organização', fldEmail: 'Email',
+    fldPhone: 'Telefone', fldFax: 'Fax', fldAddress: 'Endereço',
+    fldCity: 'Cidade', fldState: 'Estado', fldPostal: 'CEP',
+    contactRegistrant: 'Registrante', contactAdmin: 'Admin', contactTech: 'Técnico', contactAbuse: 'Abuso',
+    yes: 'Sim', no: 'Não', dir: 'ltr',
+  },
+  ru: {
+    pageTitle: 'RDAP — CERT',
+    subtitle: 'Киберразведка угроз · Инструмент сетевой разведки',
+    themeLight: 'Светлая', themeDark: 'Тёмная',
+    skipLink: 'Перейти к основному содержимому',
+    panelParams: 'Параметры запроса',
+    labelQuery: 'Цель (домен / IP / ASN)',
+    placeholderQuery: 'напр.: example.com, 8.8.8.8 или AS15169',
+    queryFieldHint: 'Протокол RDAP через HTTPS — сервер определяется автоматически',
+    labelQueryType: 'Тип запроса',
+    optAuto: 'Авто', optDomain: 'Домен',
+    labelTimeout: 'Таймаут',
+    btnSend: 'Запустить RDAP',
+    warnNoQuery: '⚠ Введите цель',
+    panelResults: 'Результаты',
+    notFound: 'Не найдено — данные RDAP отсутствуют.',
+    errBadge: 'ОШИБКА',
+    loadingLabel: 'Выполняется RDAP-поиск…',
+    resultsReady: n => `RDAP завершён, ${n} полей.`,
+    secGeneral: 'Общее', secRegistration: 'Регистрация', secDates: 'Даты',
+    secNameservers: 'Серверы имён', secContacts: 'Контакты',
+    secNetwork: 'Сеть', secRaw: 'Сырые данные RDAP', secRemarks: 'Примечания',
+    fldQuery: 'Запрос', fldQueryType: 'Тип', fldRdapServer: 'RDAP-сервер',
+    fldHandle: 'Хендл', fldSelfLink: 'URL RDAP',
+    fldLdhName: 'Домен (ASCII)', fldUnicodeName: 'Домен (Unicode)',
+    fldRegistrar: 'Регистратор', fldRegistrarURL: 'URL регистратора',
+    fldCreated: 'Создан', fldUpdated: 'Обновлён', fldExpires: 'Истекает',
+    fldDelegationSigned: 'DNSSEC', fldStatus: 'Статус',
+    fldNetwork: 'Сеть', fldStartAddress: 'Начальный адрес', fldEndAddress: 'Конечный адрес',
+    fldIPVersion: 'Версия IP', fldCIDRs: 'CIDR',
+    fldStartAutnum: 'ASN начало', fldEndAutnum: 'ASN конец',
+    fldName: 'Имя', fldType: 'Тип', fldCountry: 'Страна',
+    fldOrg: 'Организация', fldEmail: 'Email',
+    fldPhone: 'Телефон', fldFax: 'Факс', fldAddress: 'Адрес',
+    fldCity: 'Город', fldState: 'Регион', fldPostal: 'Почтовый индекс',
+    contactRegistrant: 'Регистрант', contactAdmin: 'Администратор', contactTech: 'Технический', contactAbuse: 'Злоупотребления',
+    yes: 'Да', no: 'Нет', dir: 'ltr',
+  },
+  ur: {
+    pageTitle: 'RDAP — CERT',
+    subtitle: 'سائبر خطرہ انٹیلیجنس · نیٹ ورک ریکون ٹول',
+    themeLight: 'روشن', themeDark: 'تاریک',
+    skipLink: 'مرکزی مواد پر جائیں',
+    panelParams: 'کوئری پیرامیٹرز',
+    labelQuery: 'ہدف (ڈومین / IP / ASN)',
+    placeholderQuery: 'مثلاً: example.com، 8.8.8.8 یا AS15169',
+    queryFieldHint: 'RDAP پروٹوکول HTTPS — سرور خودکار دریافت کیا جاتا ہے',
+    labelQueryType: 'کوئری کی قسم',
+    optAuto: 'خودکار', optDomain: 'ڈومین',
+    labelTimeout: 'ٹائم آؤٹ',
+    btnSend: 'RDAP چلائیں',
+    warnNoQuery: '⚠ ہدف درج کریں',
+    panelResults: 'نتائج',
+    notFound: 'نہیں ملا — RDAP ڈیٹا دستیاب نہیں۔',
+    errBadge: 'خطا',
+    loadingLabel: 'RDAP تلاش جاری ہے…',
+    resultsReady: n => `RDAP مکمل، ${n} فیلڈز۔`,
+    secGeneral: 'عمومی', secRegistration: 'رجسٹریشن', secDates: 'تاریخیں',
+    secNameservers: 'نیم سرورز', secContacts: 'رابطے',
+    secNetwork: 'نیٹ ورک', secRaw: 'RDAP خام ڈیٹا', secRemarks: 'ملاحظات',
+    fldQuery: 'کوئری', fldQueryType: 'قسم', fldRdapServer: 'RDAP سرور',
+    fldHandle: 'ہینڈل', fldSelfLink: 'RDAP URL',
+    fldLdhName: 'ڈومین (ASCII)', fldUnicodeName: 'ڈومین (Unicode)',
+    fldRegistrar: 'رجسٹرار', fldRegistrarURL: 'رجسٹرار URL',
+    fldCreated: 'تخلیق', fldUpdated: 'تازہ کاری', fldExpires: 'میعاد ختم',
+    fldDelegationSigned: 'DNSSEC', fldStatus: 'حالت',
+    fldNetwork: 'نیٹ ورک', fldStartAddress: 'آغاز پتہ', fldEndAddress: 'اختتام پتہ',
+    fldIPVersion: 'IP ورژن', fldCIDRs: 'CIDR',
+    fldStartAutnum: 'ASN آغاز', fldEndAutnum: 'ASN اختتام',
+    fldName: 'نام', fldType: 'قسم', fldCountry: 'ملک',
+    fldOrg: 'تنظیم', fldEmail: 'ای میل',
+    fldPhone: 'فون', fldFax: 'فیکس', fldAddress: 'پتہ',
+    fldCity: 'شہر', fldState: 'صوبہ', fldPostal: 'پوسٹل کوڈ',
+    contactRegistrant: 'رجسٹرنٹ', contactAdmin: 'منتظم', contactTech: 'تکنیکی', contactAbuse: 'بدسلوکی',
+    yes: 'ہاں', no: 'نہیں', dir: 'rtl',
+  },
+  vi: {
+    pageTitle: 'RDAP — CERT',
+    subtitle: 'Tình báo Mối đe dọa Mạng · Công cụ Trinh sát Mạng',
+    themeLight: 'Sáng', themeDark: 'Tối',
+    skipLink: 'Chuyển đến nội dung chính',
+    panelParams: 'Tham số truy vấn',
+    labelQuery: 'Mục tiêu (Tên miền / IP / ASN)',
+    placeholderQuery: 'vd: example.com, 8.8.8.8 hoặc AS15169',
+    queryFieldHint: 'Giao thức RDAP qua HTTPS — máy chủ được tự động khám phá',
+    labelQueryType: 'Loại truy vấn',
+    optAuto: 'Tự động', optDomain: 'Tên miền',
+    labelTimeout: 'Thời gian chờ',
+    btnSend: 'Chạy RDAP',
+    warnNoQuery: '⚠ Nhập mục tiêu',
+    panelResults: 'Kết quả',
+    notFound: 'Không tìm thấy — không có dữ liệu RDAP.',
+    errBadge: 'LỖI',
+    loadingLabel: 'Đang tra cứu RDAP…',
+    resultsReady: n => `Tra cứu RDAP hoàn tất, ${n} trường.`,
+    secGeneral: 'Chung', secRegistration: 'Đăng ký', secDates: 'Ngày tháng',
+    secNameservers: 'Máy chủ Tên', secContacts: 'Liên hệ',
+    secNetwork: 'Mạng', secRaw: 'RDAP thô', secRemarks: 'Ghi chú',
+    fldQuery: 'Truy vấn', fldQueryType: 'Loại', fldRdapServer: 'Máy chủ RDAP',
+    fldHandle: 'Handle', fldSelfLink: 'URL RDAP',
+    fldLdhName: 'Tên miền (ASCII)', fldUnicodeName: 'Tên miền (Unicode)',
+    fldRegistrar: 'Nhà đăng ký', fldRegistrarURL: 'URL Nhà đăng ký',
+    fldCreated: 'Ngày tạo', fldUpdated: 'Ngày cập nhật', fldExpires: 'Ngày hết hạn',
+    fldDelegationSigned: 'DNSSEC', fldStatus: 'Trạng thái',
+    fldNetwork: 'Mạng', fldStartAddress: 'Địa chỉ đầu', fldEndAddress: 'Địa chỉ cuối',
+    fldIPVersion: 'Phiên bản IP', fldCIDRs: 'CIDR',
+    fldStartAutnum: 'ASN đầu', fldEndAutnum: 'ASN cuối',
+    fldName: 'Tên', fldType: 'Loại', fldCountry: 'Quốc gia',
+    fldOrg: 'Tổ chức', fldEmail: 'Email',
+    fldPhone: 'Điện thoại', fldFax: 'Fax', fldAddress: 'Địa chỉ',
+    fldCity: 'Thành phố', fldState: 'Tỉnh/Thành', fldPostal: 'Mã bưu điện',
+    contactRegistrant: 'Người đăng ký', contactAdmin: 'Quản trị', contactTech: 'Kỹ thuật', contactAbuse: 'Lạm dụng',
+    yes: 'Có', no: 'Không', dir: 'ltr',
+  },
+  'zh-CN': {
+    pageTitle: 'RDAP 查询 — CERT',
+    subtitle: '网络威胁情报 · 网络侦察工具',
+    themeLight: '浅色', themeDark: '深色',
+    skipLink: '跳转到主要内容',
+    panelParams: '查询参数',
+    labelQuery: '目标（域名 / IP / ASN）',
+    placeholderQuery: '例：example.com、8.8.8.8 或 AS15169',
+    queryFieldHint: 'RDAP 协议通过 HTTPS — 服务器自动发现',
+    labelQueryType: '查询类型',
+    optAuto: '自动', optDomain: '域名',
+    labelTimeout: '超时',
+    btnSend: '执行 RDAP',
+    warnNoQuery: '⚠ 请输入目标',
+    panelResults: '结果',
+    notFound: '未找到 — 没有可用的 RDAP 数据。',
+    errBadge: '错误',
+    loadingLabel: '正在执行 RDAP 查询…',
+    resultsReady: n => `RDAP 查询完成，${n} 个字段。`,
+    secGeneral: '概览', secRegistration: '注册信息', secDates: '日期',
+    secNameservers: '域名服务器', secContacts: '联系人',
+    secNetwork: '网络', secRaw: 'RDAP 原始数据', secRemarks: '备注',
+    fldQuery: '查询', fldQueryType: '类型', fldRdapServer: 'RDAP 服务器',
+    fldHandle: '标识符', fldSelfLink: 'RDAP 链接',
+    fldLdhName: '域名 (ASCII)', fldUnicodeName: '域名 (Unicode)',
+    fldRegistrar: '注册商', fldRegistrarURL: '注册商网址',
+    fldCreated: '注册时间', fldUpdated: '更新时间', fldExpires: '到期时间',
+    fldDelegationSigned: 'DNSSEC', fldStatus: '状态',
+    fldNetwork: '网络', fldStartAddress: '起始地址', fldEndAddress: '结束地址',
+    fldIPVersion: 'IP 版本', fldCIDRs: 'CIDR',
+    fldStartAutnum: 'ASN 起始', fldEndAutnum: 'ASN 结束',
+    fldName: '名称', fldType: '类型', fldCountry: '国家',
+    fldOrg: '组织', fldEmail: '邮箱',
+    fldPhone: '电话', fldFax: '传真', fldAddress: '地址',
+    fldCity: '城市', fldState: '省/州', fldPostal: '邮政编码',
+    contactRegistrant: '注册人', contactAdmin: '管理员', contactTech: '技术联系', contactAbuse: '举报',
+    yes: '是', no: '否', dir: 'ltr',
+  },
+};
+
+// ══════════════════════════════════════════════════════════════════
+// LANGUAGE DETECTION
+// ══════════════════════════════════════════════════════════════════
+const SUPPORTED = Object.keys(LANGS);
+function detectLang() {
+  const navLangs = Array.from(navigator.languages || [navigator.language || 'en']);
+  for (const l of navLangs) {
+    if (SUPPORTED.includes(l)) return l;
+    const base = l.split('-')[0];
+    const match = SUPPORTED.find(s => s === base || s.startsWith(base + '-'));
+    if (match) return match;
+  }
+  return 'en';
+}
+
+// ══════════════════════════════════════════════════════════════════
+// THEME
+// ══════════════════════════════════════════════════════════════════
+const html       = document.documentElement;
+const themeBtn   = document.getElementById('theme-toggle');
+const themeLabel = document.getElementById('theme-label');
+const themeIcon  = document.getElementById('theme-icon');
+let currentLang  = 'en';
+let isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+applyTheme(isDark);
+
+themeBtn.addEventListener('click', () => { isDark = !isDark; applyTheme(isDark); });
+themeBtn.addEventListener('keydown', e => {
+  if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); themeBtn.click(); }
+});
+
+function applyTheme(dark) {
+  html.dataset.theme = dark ? 'dark' : 'light';
+  themeBtn.setAttribute('aria-checked', dark ? 'false' : 'true');
+  const t = LANGS[currentLang] || LANGS.en;
+  themeLabel.textContent = dark ? t.themeLight : t.themeDark;
+  themeIcon.textContent  = dark ? '☀️' : '🌙';
+  themeBtn.setAttribute('aria-label', `${dark ? t.themeLight : t.themeDark} — toggle color theme`);
+}
+
+// ══════════════════════════════════════════════════════════════════
+// TRANSLATIONS
+// ══════════════════════════════════════════════════════════════════
+function applyLang(lang) {
+  currentLang = lang;
+  const t   = LANGS[lang] || LANGS.en;
+  const dir = t.dir || 'ltr';
+
+  html.lang = lang; html.dir = dir; document.body.dir = dir;
+
+  const skipLink = document.getElementById('skip-link');
+  if (skipLink) skipLink.textContent = t.skipLink;
+
+  document.title = t.pageTitle || 'RDAP Query — CERT';
+  document.getElementById('hdr-subtitle').textContent   = t.subtitle;
+  document.getElementById('ph-params').textContent      = t.panelParams;
+  document.getElementById('lbl-query').textContent      = t.labelQuery;
+  document.getElementById('query').placeholder          = t.placeholderQuery;
+  document.getElementById('query-field-hint').textContent = t.queryFieldHint;
+  document.getElementById('lbl-query-type').textContent = t.labelQueryType;
+  document.getElementById('opt-auto').textContent       = t.optAuto;
+  document.getElementById('opt-domain').textContent     = t.optDomain;
+  document.getElementById('lbl-timeout').textContent    = t.labelTimeout;
+  document.getElementById('btn-send-label').textContent = t.btnSend;
+  document.getElementById('ph-results').textContent     = t.panelResults;
+
+  document.getElementById('lang-select-label').textContent =
+    dir === 'rtl' ? 'اللغة' : 'Language';
+
+  applyTheme(isDark);
+}
+
+// ══════════════════════════════════════════════════════════════════
+// INIT LANGUAGE
+// ══════════════════════════════════════════════════════════════════
+const langSel  = document.getElementById('lang-select');
+const initLang = detectLang();
+langSel.value  = SUPPORTED.includes(initLang) ? initLang : 'en';
+applyLang(langSel.value);
+langSel.addEventListener('change', () => applyLang(langSel.value));
+
+// ══════════════════════════════════════════════════════════════════
+// QUERY TYPE RADIO GROUP
+// ══════════════════════════════════════════════════════════════════
+document.querySelectorAll('.qtype-item').forEach(item => {
+  const radio = item.querySelector('input[type=radio]');
+  item.addEventListener('click', () => {
+    document.querySelectorAll('.qtype-item').forEach(i => i.classList.remove('checked'));
+    item.classList.add('checked');
+    radio.checked = true;
+  });
+  radio.addEventListener('keydown', e => {
+    if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); item.click(); }
+  });
+  radio.addEventListener('keydown', e => {
+    const items = Array.from(document.querySelectorAll('.qtype-item'));
+    const idx = items.indexOf(item);
+    const dir = html.dir === 'rtl' ? -1 : 1;
+    if (e.key === 'ArrowRight') { e.preventDefault(); items[(idx + dir + items.length) % items.length].querySelector('input').focus(); items[(idx + dir + items.length) % items.length].click(); }
+    if (e.key === 'ArrowLeft')  { e.preventDefault(); items[(idx - dir + items.length) % items.length].querySelector('input').focus(); items[(idx - dir + items.length) % items.length].click(); }
+  });
+});
+
+function getQueryType() {
+  const checked = document.querySelector('.qtype-item.checked');
+  return checked ? checked.dataset.value : 'auto';
+}
+
+const slider     = document.getElementById('timeout-slider');
+const timeoutVal = document.getElementById('timeout-val');
+slider.addEventListener('input', () => {
+  const v = slider.value;
+  timeoutVal.textContent = v + ' s';
+  slider.setAttribute('aria-valuenow', v);
+  slider.setAttribute('aria-valuetext', v + ' seconds');
+});
+
+// ══════════════════════════════════════════════════════════════════
+// BUILD API PAYLOAD
+// ══════════════════════════════════════════════════════════════════
+function buildPayload(query, queryType, timeout) {
+  const payload = {};
+  let type = queryType;
+
+  if (type === 'auto') {
+    if (/^AS\d+$/i.test(query) || /^\d{1,10}$/.test(query)) {
+      type = 'asn';
+    } else if (/^(\d{1,3}\.){3}\d{1,3}(\/\d+)?$/.test(query)) {
+      type = 'ip';
+    } else if (/^[0-9a-fA-F:]+$/.test(query) && query.includes(':')) {
+      type = 'ip';
+    } else {
+      type = 'domain';
+    }
+  }
+
+  if      (type === 'asn') payload.asn    = query;
+  else if (type === 'ip')  payload.ip     = query;
+  else                     payload.domain = query;
+
+  if (timeout > 0) payload.timeout = timeout;
+  return payload;
+}
+
+// ══════════════════════════════════════════════════════════════════
+// SUBMIT
+// ══════════════════════════════════════════════════════════════════
+const form     = document.getElementById('rdap-form');
+const btn      = document.getElementById('btn-query');
+const hint     = document.getElementById('submit-hint');
+const srStatus = document.getElementById('sr-status');
+
+form.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const queryInput = document.getElementById('query');
+  const query      = queryInput.value.trim();
+  const t          = LANGS[currentLang] || LANGS.en;
+
+  if (!query) {
+    queryInput.focus();
+    queryInput.setAttribute('aria-invalid', 'true');
+    hint.textContent = t.warnNoQuery;
+    hint.style.color = 'var(--warn)';
+    hint.setAttribute('role', 'alert');
+    return;
+  }
+  queryInput.setAttribute('aria-invalid', 'false');
+  hint.textContent = '';
+  hint.removeAttribute('role');
+
+  const queryType = getQueryType();
+  const timeout   = parseInt(slider.value);
+  const payload   = buildPayload(query, queryType, timeout);
+
+  btn.disabled = true;
+  btn.classList.add('loading');
+  btn.setAttribute('aria-busy', 'true');
+  srStatus.textContent = t.loadingLabel;
+
+  const t0 = performance.now();
+  try {
+    const res = await fetch('/api/v1/rdap', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    const elapsed = ((performance.now() - t0) / 1000).toFixed(2);
+    if (!res.ok) throw new Error(`HTTP ${res.status} ${res.statusText}`);
+    const data = await res.json();
+    renderResults(data, query, elapsed);
+    const count = countFields(data.answers);
+    srStatus.textContent = t.resultsReady(count);
+  } catch (err) {
+    const elapsed = ((performance.now() - t0) / 1000).toFixed(2);
+    renderError(err, query, elapsed);
+    srStatus.textContent = String(err);
+  } finally {
+    btn.disabled = false;
+    btn.classList.remove('loading');
+    btn.removeAttribute('aria-busy');
+  }
+});
+
+document.getElementById('query').addEventListener('keydown', e => {
+  if (e.key === 'Enter') { e.preventDefault(); form.requestSubmit(); }
+});
+
+// ══════════════════════════════════════════════════════════════════
+// HELPERS
+// ══════════════════════════════════════════════════════════════════
+const esc = s => String(s ?? '')
+  .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+  .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+
+function fmtDate(d) {
+  if (!d) return null;
+  try {
+    const dt = new Date(d);
+    if (isNaN(dt)) return String(d);
+    return dt.toISOString().replace('T', ' ').replace(/\.\d{3}Z$/, ' UTC');
+  } catch { return String(d); }
+}
+
+function countFields(answers) {
+  if (!answers || typeof answers !== 'object' || Array.isArray(answers)) return 0;
+  return Object.values(answers).filter(v => v != null && v !== '' && !(Array.isArray(v) && v.length === 0)).length;
+}
+
+// ══════════════════════════════════════════════════════════════════
+// RENDER — MAIN
+// ══════════════════════════════════════════════════════════════════
+function renderResults(data, query, elapsed) {
+  const panel = document.getElementById('results-panel');
+  const body  = document.getElementById('results-body');
+  const t     = LANGS[currentLang] || LANGS.en;
+
+  panel.style.display = 'block';
+
+  const status = (data.status || 'ERROR').toUpperCase();
+  const badgeClass = status === 'SUCCESS'  ? 'badge-success'
+                   : status === 'NOTFOUND' ? 'badge-notfound'
+                   :                         'badge-error';
+  const badgeTxt  = status === 'ERROR'    ? t.errBadge
+                  : status === 'NOTFOUND' ? 'NOTFOUND'
+                  :                         status;
+
+  let content = '';
+  if (status === 'NOTFOUND') {
+    content = `<div class="no-answer" role="status">⊘ &nbsp;${esc(t.notFound)}</div>`;
+  } else if (status === 'ERROR') {
+    const msg = typeof data.answers === 'string' ? data.answers
+              : Array.isArray(data.answers) ? data.answers.join('\n')
+              : JSON.stringify(data.answers ?? data, null, 2);
+    content = `<div class="raw-block-standalone" role="alert" style="color:var(--err)">${esc(msg)}</div>`;
+  } else if (status === 'SUCCESS') {
+    const a = data.answers;
+    if (a && typeof a === 'object' && !Array.isArray(a)) {
+      content = renderRdapObject(a);
+    } else {
+      content = `<div class="no-answer" role="status">${esc(t.notFound)}</div>`;
+    }
+  } else {
+    content = `<div class="raw-block-standalone">${esc(JSON.stringify(data, null, 2))}</div>`;
+  }
+
+  body.innerHTML = `
+    <div class="result-meta" role="region" aria-label="${esc(t.panelResults)}">
+      <span class="badge ${badgeClass}" aria-label="Status: ${esc(badgeTxt)}">${esc(badgeTxt)}</span>
+      <span class="result-query-str">${esc(query)}</span>
+      <span class="result-time">${elapsed}s</span>
+    </div>
+    ${content}`;
+
+  panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  panel.setAttribute('tabindex', '-1');
+  panel.focus({ preventScroll: true });
+}
+
+function renderError(err, query, elapsed) {
+  const panel = document.getElementById('results-panel');
+  const body  = document.getElementById('results-body');
+  const t     = LANGS[currentLang] || LANGS.en;
+  panel.style.display = 'block';
+  body.innerHTML = `
+    <div class="result-meta">
+      <span class="badge badge-error">${esc(t.errBadge)}</span>
+      <span class="result-query-str">${esc(query)}</span>
+      <span class="result-time">${elapsed}s</span>
+    </div>
+    <div class="raw-block-standalone" role="alert" style="color:var(--err)">${esc(String(err))}</div>`;
+  panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  panel.setAttribute('tabindex', '-1');
+  panel.focus({ preventScroll: true });
+}
+
+// ══════════════════════════════════════════════════════════════════
+// RENDER — RDAP OBJECT
+// ══════════════════════════════════════════════════════════════════
+function renderRdapObject(r) {
+  const t   = LANGS[currentLang] || LANGS.en;
+  let   out = '';
+
+  // ─ General ────────────────────────────────────────────────────
+  const genRows = [];
+  kvPush(genRows, t.fldQuery,      r.query);
+  kvPush(genRows, t.fldQueryType,  r.queryType,  'val-acc');
+  kvPush(genRows, t.fldRdapServer, r.rdapServer, 'val-dim');
+  kvPush(genRows, t.fldHandle,     r.handle,     'val-dim');
+  kvPush(genRows, t.fldSelfLink,   r.selfLink,   'val-dim');
+  if (genRows.length) out += renderKVSection(t.secGeneral, genRows);
+
+  // ─ Registration (domains) ─────────────────────────────────────
+  if (r.ldhName || r.unicodeName || (r.registrar && r.registrar.name)) {
+    const regRows = [];
+    kvPush(regRows, t.fldLdhName,      r.ldhName);
+    kvPush(regRows, t.fldUnicodeName,  r.unicodeName);
+    kvPush(regRows, t.fldRegistrar,    r.registrar ? r.registrar.name : null);
+    kvPush(regRows, t.fldRegistrarURL, r.registrar ? r.registrar.url  : null, 'val-dim');
+    if (r.delegationSigned != null) {
+      regRows.push({ k: t.fldDelegationSigned,
+                     v: r.delegationSigned ? t.yes : t.no,
+                     cls: r.delegationSigned ? 'val-ok' : 'val-dim' });
+    }
+    if (regRows.length) out += renderKVSection(t.secRegistration, regRows);
+  }
+
+  // ─ Dates ──────────────────────────────────────────────────────
+  const dateRows = [];
+  kvPush(dateRows, t.fldCreated, fmtDate(r.created));
+  kvPush(dateRows, t.fldUpdated, fmtDate(r.updated), 'val-dim');
+  if (r.expires) {
+    const expired = new Date(r.expires) < new Date();
+    kvPush(dateRows, t.fldExpires, fmtDate(r.expires), expired ? 'val-err' : 'val-warn');
+  }
+  if (dateRows.length) out += renderKVSection(t.secDates, dateRows);
+
+  // ─ Status ─────────────────────────────────────────────────────
+  if (r.status && r.status.length > 0) {
+    out += renderArraySection(t.fldStatus, r.status);
+  }
+
+  // ─ Name Servers ───────────────────────────────────────────────
+  if (r.nameServers && r.nameServers.length > 0) {
+    out += renderArraySection(t.secNameservers, r.nameServers, 'val-acc');
+  }
+
+  // ─ Network / ASN ──────────────────────────────────────────────
+  const netRows = [];
+  if (r.startAddress) {
+    kvPush(netRows, t.fldStartAddress, r.startAddress, 'val-acc');
+    kvPush(netRows, t.fldEndAddress,   r.endAddress);
+    kvPush(netRows, t.fldIPVersion,    r.ipVersion,   'val-dim');
+  }
+  if (r.startAutnum) {
+    const asnRange = r.startAutnum === r.endAutnum
+      ? `AS${r.startAutnum}`
+      : `AS${r.startAutnum} – AS${r.endAutnum}`;
+    kvPush(netRows, 'ASN', asnRange, 'val-acc');
+  }
+  kvPush(netRows, t.fldName,    r.name);
+  kvPush(netRows, t.fldType,    r.type,    'val-dim');
+  kvPush(netRows, t.fldCountry, r.country);
+  if (netRows.length || (r.cidrs && r.cidrs.length > 0)) {
+    out += renderKVSection(t.secNetwork, netRows);
+    if (r.cidrs && r.cidrs.length > 0) {
+      out += renderArraySection(t.fldCIDRs, r.cidrs);
+    }
+  }
+
+  // ─ Contacts ───────────────────────────────────────────────────
+  if (r.registrant || r.admin || r.tech || r.abuse) {
+    out += renderContacts(r, t);
+  }
+
+  // ─ Remarks ────────────────────────────────────────────────────
+  if (r.remarks && r.remarks.length > 0) {
+    out += renderRemarksSection(t.secRemarks, r.remarks);
+  }
+
+  // ─ Raw RDAP ───────────────────────────────────────────────────
+  if (r.rawData) {
+    out += `
+    <details class="raw-details">
+      <summary>${esc(t.secRaw)}</summary>
+      <div class="raw-block">${esc(JSON.stringify(r.rawData, null, 2))}</div>
+    </details>`;
+  }
+
+  return out || `<div class="no-answer" role="status">${esc(LANGS[currentLang]?.notFound ?? 'No data.')}</div>`;
+}
+
+// ── Helpers ──────────────────────────────────────────────────────
+function kvPush(arr, label, value, cls) {
+  if (value == null || value === '') return;
+  arr.push({ k: label, v: String(value), cls: cls || '' });
+}
+
+function renderKVSection(title, rows) {
+  if (!rows.length) return '';
+  return `
+  <div class="result-overflow" style="margin-bottom:8px">
+    <table class="kv-table" aria-label="${esc(title)}">
+      <thead>
+        <tr class="kv-section-sep">
+          <th scope="colgroup" colspan="2">${esc(title)}</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${rows.map(r => `
+        <tr>
+          <th scope="row">${esc(r.k)}</th>
+          <td class="${esc(r.cls)}">${esc(r.v)}</td>
+        </tr>`).join('')}
+      </tbody>
+    </table>
+  </div>`;
+}
+
+function renderArraySection(title, items, itemCls) {
+  if (!items || items.length === 0) return '';
+  const cls = itemCls || '';
+  return `
+  <div class="result-overflow" style="margin-bottom:8px">
+    <table class="kv-table" aria-label="${esc(title)}">
+      <thead>
+        <tr class="kv-section-sep">
+          <th scope="colgroup" colspan="2">${esc(title)}</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${items.map((item, i) => `
+        <tr>
+          <th scope="row" style="color:var(--text-dim);font-size:0.6rem">${i + 1}</th>
+          <td class="${esc(cls)}">${esc(item)}</td>
+        </tr>`).join('')}
+      </tbody>
+    </table>
+  </div>`;
+}
+
+function renderRemarksSection(title, remarks) {
+  if (!remarks || remarks.length === 0) return '';
+  return `
+  <div class="result-overflow" style="margin-bottom:8px">
+    <table class="kv-table" aria-label="${esc(title)}">
+      <thead>
+        <tr class="kv-section-sep">
+          <th scope="colgroup" colspan="2">${esc(title)}</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${remarks.map((r, i) => `
+        <tr>
+          <th scope="row" style="color:var(--text-dim);font-size:0.6rem">${i + 1}</th>
+          <td class="val-dim">${esc(r)}</td>
+        </tr>`).join('')}
+      </tbody>
+    </table>
+  </div>`;
+}
+
+function renderContacts(r, t) {
+  const contacts = [
+    { key: 'registrant', label: t.contactRegistrant, data: r.registrant },
+    { key: 'admin',      label: t.contactAdmin,      data: r.admin      },
+    { key: 'tech',       label: t.contactTech,       data: r.tech       },
+    { key: 'abuse',      label: t.contactAbuse,      data: r.abuse      },
+  ].filter(c => c.data);
+
+  if (!contacts.length) return '';
+
+  const cards = contacts.map(c => {
+    const fields = [
+      [t.fldName,    c.data.name],
+      [t.fldOrg,     c.data.organization],
+      [t.fldEmail,   c.data.email],
+      [t.fldPhone,   c.data.phone],
+      [t.fldFax,     c.data.fax],
+      [t.fldAddress, c.data.street],
+      [t.fldCity,    c.data.city],
+      [t.fldState,   c.data.state],
+      [t.fldPostal,  c.data.postalCode],
+      [t.fldCountry, c.data.country],
+    ].filter(([, v]) => v != null && v !== '');
+
+    if (!fields.length) return '';
+
+    const rows = fields.map(([k, v]) => `
+      <tr>
+        <th scope="row">${esc(k)}</th>
+        <td>${esc(v)}</td>
+      </tr>`).join('');
+
+    return `
+    <div class="contact-card">
+      <div class="contact-card-head">${esc(c.label)}</div>
+      <table aria-label="${esc(c.label)}">${rows}</table>
+    </div>`;
+  }).join('');
+
+  return `
+  <div style="margin-bottom:8px">
+    <div style="font-family:var(--mono);font-size:0.6rem;font-weight:600;letter-spacing:0.14em;
+                text-transform:uppercase;color:var(--text-dim);padding:6px 0 8px;
+                border-bottom:1px solid var(--border);margin-bottom:8px;">
+      ${esc(t.secContacts)}
+    </div>
+    <div class="contact-grid">${cards}</div>
+  </div>`;
+}
+
+// ══════════════════════════════════════════════════════════════════
+// CUSTOM LANGUAGE DROPDOWN
+// ══════════════════════════════════════════════════════════════════
+const LANG_META = {
+  ar:{'flag':'🇸🇦','name':'العربية'},bn:{'flag':'🇧🇩','name':'বাংলা'},
+  de:{'flag':'🇩🇪','name':'Deutsch'},en:{'flag':'🇬🇧','name':'English'},
+  es:{'flag':'🇪🇸','name':'Español'},fr:{'flag':'🇫🇷','name':'Français'},
+  hi:{'flag':'🇮🇳','name':'हिन्दी'},id:{'flag':'🇮🇩','name':'Bahasa Indonesia'},
+  ja:{'flag':'🇯🇵','name':'日本語'},ko:{'flag':'🇰🇷','name':'한국어'},
+  'pt-BR':{'flag':'🇧🇷','name':'Português (BR)'},ru:{'flag':'🇷🇺','name':'Русский'},
+  ur:{'flag':'🇵🇰','name':'اردو'},vi:{'flag':'🇻🇳','name':'Tiếng Việt'},
+  'zh-CN':{'flag':'🇨🇳','name':'中文'}
+};
+const _lb=document.getElementById('lang-btn'),_lo=document.getElementById('lang-options'),
+      _lf=document.getElementById('lang-current-flag'),_ln=document.getElementById('lang-current-name');
+Object.entries(LANG_META).forEach(([c,m])=>{
+  const li=document.createElement('li');li.className='lang-option';li.setAttribute('role','option');
+  li.setAttribute('aria-selected','false');li.dataset.value=c;
+  li.innerHTML=`<span class="lang-flag-icon">${m.flag}</span><span>${m.name}</span>`;
+  li.addEventListener('click',e=>{e.stopPropagation();_pk(c);_cl();});_lo.appendChild(li);
+});
+function _ud(c){const m=LANG_META[c]||LANG_META.en;_lf.textContent=m.flag;_ln.textContent=m.name;_lo.querySelectorAll('[role=option]').forEach(o=>o.setAttribute('aria-selected',o.dataset.value===c?'true':'false'));}
+function _pk(c){langSel.value=c;_ud(c);applyLang(c);}
+function _op(){_lo.hidden=false;_lb.setAttribute('aria-expanded','true');_lb.classList.add('open');const s=_lo.querySelector('[aria-selected="true"]');if(s)s.scrollIntoView({block:'nearest'});}
+function _cl(){_lo.hidden=true;_lb.setAttribute('aria-expanded','false');_lb.classList.remove('open');}
+_lb.addEventListener('click',e=>{e.stopPropagation();_lo.hidden?_op():_cl();});
+_lo.addEventListener('keydown',e=>{
+  const it=Array.from(_lo.querySelectorAll('.lang-option')),ix=it.indexOf(document.activeElement);
+  if(e.key==='ArrowDown'){e.preventDefault();it[(ix+1)%it.length].focus();}
+  if(e.key==='ArrowUp'){e.preventDefault();it[(ix-1+it.length)%it.length].focus();}
+  if(e.key==='Enter'||e.key===' '){e.preventDefault();document.activeElement.click();}
+  if(e.key==='Escape'){_cl();_lb.focus();}if(e.key==='Tab')_cl();
+});
+_lb.addEventListener('keydown',e=>{
+  if(e.key==='Escape')_cl();
+  if((e.key==='ArrowDown'||e.key==='Enter'||e.key===' ')&&_lo.hidden){e.preventDefault();_op();_lo.querySelector('.lang-option')?.focus();}
+});
+document.addEventListener('click',_cl);
+document.addEventListener('keydown',e=>{if(e.key==='Escape')_cl();});
+_ud(langSel.value);
+</script>
+</body>
+</html>

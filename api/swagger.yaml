@@ -1,0 +1,361 @@
+openapi: 3.0.3
+
+info:
+  title: RDAP Lookup API
+  description: |
+    HTTP API to perform RDAP (Registration Data Access Protocol) lookups for:
+      - Domain names
+      - IPv4 / IPv6 addresses
+      - Autonomous System Numbers (ASN)
+
+    The API discovers the authoritative RDAP server automatically via the IANA bootstrap
+    registry (RFC 9224) and returns structured registration data as parsed JSON.
+  version: "1.0.0"
+
+servers:
+  - url: http://127.0.0.1:8080
+    description: Local server
+
+paths:
+
+  /api/v1/rdap:
+    post:
+      summary: Perform an RDAP lookup
+      description: |
+        Performs an RDAP lookup using one of the following parameters:
+
+        - `ip`
+        - `domain`
+        - `asn`
+
+        Only one parameter should be provided.
+
+        The authoritative RDAP server is discovered automatically via the IANA bootstrap
+        registry. An optional per-request timeout (in seconds) can be specified.
+      operationId: rdapLookup
+
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RDAPRequest'
+            examples:
+
+              domainLookup:
+                summary: Domain lookup
+                value:
+                  domain: example.com
+
+              ipLookup:
+                summary: IPv4 lookup
+                value:
+                  ip: 8.8.8.8
+
+              ipv6Lookup:
+                summary: IPv6 lookup
+                value:
+                  ip: "2001:4860:4860::8888"
+
+              asnLookup:
+                summary: ASN lookup
+                value:
+                  asn: "15169"
+
+              withTimeout:
+                summary: Domain lookup with custom timeout
+                value:
+                  domain: example.com
+                  timeout: 10
+
+      responses:
+
+        "200":
+          description: RDAP query result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RDAPResponse'
+              examples:
+
+                successDomain:
+                  summary: Successful domain lookup
+                  value:
+                    status: SUCCESS
+                    answers:
+                      query: example.com
+                      queryType: domain
+                      rdapServer: "https://rdap.verisign.com/com/v1/"
+                      handle: "2336799_DOMAIN_COM-VRSN"
+                      ldhName: example.com
+                      unicodeName: example.com
+                      status:
+                        - active
+                      nameServers:
+                        - a.iana-servers.net
+                        - b.iana-servers.net
+                      delegationSigned: false
+                      created: "1995-08-14T04:00:00Z"
+                      updated: "2026-01-16T18:26:50Z"
+                      expires: "2026-08-13T04:00:00Z"
+                      registrar:
+                        name: "RESERVED-Internet Assigned Numbers Authority"
+                        url: "https://www.iana.org"
+                      selfLink: "https://rdap.verisign.com/com/v1/domain/EXAMPLE.COM"
+
+                successIP:
+                  summary: Successful IPv4 lookup
+                  value:
+                    status: SUCCESS
+                    answers:
+                      query: 8.8.8.8
+                      queryType: ipv4
+                      rdapServer: "https://rdap.arin.net/registry/"
+                      handle: NET-8-8-8-0-2
+                      startAddress: 8.8.8.0
+                      endAddress: 8.8.8.255
+                      ipVersion: v4
+                      cidrs:
+                        - 8.8.8.0/24
+                      name: GOGL
+                      type: DIRECT ALLOCATION
+                      country: US
+
+                successASN:
+                  summary: Successful ASN lookup
+                  value:
+                    status: SUCCESS
+                    answers:
+                      query: "15169"
+                      queryType: asn
+                      rdapServer: "https://rdap.arin.net/registry/"
+                      handle: AS15169
+                      startAutnum: 15169
+                      endAutnum: 15169
+                      name: GOOGLE
+
+                notFound:
+                  summary: No RDAP record found
+                  value:
+                    status: NOTFOUND
+                    answers: []
+
+                error:
+                  summary: Error response
+                  value:
+                    status: ERROR
+                    answers: "invalid query target"
+
+        "429":
+          description: |
+            The authoritative RDAP server returned HTTP 429 Too Many Requests.
+            The client should back off and retry later.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RDAPResponse'
+              examples:
+                rateLimit:
+                  summary: Rate limit exceeded
+                  value:
+                    status: RATELIMIT
+                    answers: "RDAP server rate limit exceeded (HTTP 429): https://rdap.verisign.com/com/v1/"
+
+components:
+  schemas:
+
+    RDAPRequest:
+      type: object
+      description: RDAP lookup request. Exactly one of ip, domain, or asn must be provided.
+      properties:
+        ip:
+          type: string
+          description: IPv4 or IPv6 address (e.g. 8.8.8.8 or 2001:4860:4860::8888)
+          example: "8.8.8.8"
+        domain:
+          type: string
+          description: Domain name (e.g. example.com)
+          example: "example.com"
+        asn:
+          type: string
+          description: AS number, with or without AS prefix (e.g. 15169 or AS15169)
+          example: "15169"
+        timeout:
+          type: integer
+          description: Per-request RDAP timeout in seconds (0 uses the server default)
+          example: 10
+
+    RDAPResponse:
+      type: object
+      required:
+        - status
+        - answers
+      properties:
+        status:
+          type: string
+          enum: [SUCCESS, NOTFOUND, ERROR, RATELIMIT]
+          description: |
+            Result status:
+            - SUCCESS: query resolved, answers contains the parsed RDAP result
+            - NOTFOUND: no RDAP record found for the target
+            - ERROR: bad request, invalid input, or network failure
+            - RATELIMIT: the authoritative RDAP server returned HTTP 429 Too Many Requests
+        answers:
+          oneOf:
+            - $ref: '#/components/schemas/RDAPResult'
+            - type: array
+              items: {}
+            - type: string
+          description: Parsed RDAP result on success, empty array on NOTFOUND, error message string on ERROR.
+
+    RDAPResult:
+      type: object
+      description: Parsed RDAP registration record.
+      properties:
+        query:
+          type: string
+          description: Original query value
+        queryType:
+          type: string
+          enum: [domain, ipv4, ipv6, asn]
+          description: Detected query type
+        rdapServer:
+          type: string
+          description: Authoritative RDAP server URL used for this query
+        handle:
+          type: string
+          description: Registry handle / identifier
+        ldhName:
+          type: string
+          description: LDH (letters-digits-hyphens) form of the domain name
+        unicodeName:
+          type: string
+          description: Unicode / internationalised domain name (IDN)
+        status:
+          type: array
+          items:
+            type: string
+          description: RDAP status codes (e.g. active, inactive)
+        nameServers:
+          type: array
+          items:
+            type: string
+          description: Authoritative name servers (domain lookups)
+        delegationSigned:
+          type: boolean
+          description: True when the delegation is DNSSEC-signed
+        dnsKeyData:
+          type: string
+          description: DNSSEC key data (if present)
+        startAddress:
+          type: string
+          description: First IP address of the network block (IP lookups)
+        endAddress:
+          type: string
+          description: Last IP address of the network block (IP lookups)
+        ipVersion:
+          type: string
+          description: IP version (v4 or v6)
+        cidrs:
+          type: array
+          items:
+            type: string
+          description: CIDR notation of the network block(s)
+        startAutnum:
+          type: integer
+          description: First AS number in the range (ASN lookups)
+        endAutnum:
+          type: integer
+          description: Last AS number in the range (ASN lookups)
+        name:
+          type: string
+          description: Network or AS name
+        type:
+          type: string
+          description: Network type or allocation category
+        country:
+          type: string
+          description: Two-letter country code
+        created:
+          type: string
+          format: date-time
+          description: Registration creation date (RFC 3339)
+        updated:
+          type: string
+          format: date-time
+          description: Last modification date (RFC 3339)
+        expires:
+          type: string
+          format: date-time
+          description: Registration expiry date (RFC 3339)
+        registrar:
+          $ref: '#/components/schemas/Entity'
+          description: Sponsoring registrar entity
+        registrant:
+          $ref: '#/components/schemas/Entity'
+          description: Registrant contact
+        admin:
+          $ref: '#/components/schemas/Entity'
+          description: Administrative contact
+        tech:
+          $ref: '#/components/schemas/Entity'
+          description: Technical contact
+        abuse:
+          $ref: '#/components/schemas/Entity'
+          description: Abuse contact
+        remarks:
+          type: array
+          items:
+            type: string
+          description: Remarks or notices from the RDAP response
+        selfLink:
+          type: string
+          description: Canonical RDAP URL for this object
+        rawData:
+          description: Raw RDAP JSON response (parsed)
+
+    Entity:
+      type: object
+      description: A contact entity from the RDAP record.
+      properties:
+        handle:
+          type: string
+          description: Registry handle for this entity
+        roles:
+          type: array
+          items:
+            type: string
+          description: Roles this entity plays (registrar, registrant, administrative, technical, abuse, ...)
+        name:
+          type: string
+          description: Full name
+        organization:
+          type: string
+          description: Organization name
+        email:
+          type: string
+          description: Email address
+        phone:
+          type: string
+          description: Voice phone number
+        fax:
+          type: string
+          description: Fax number
+        street:
+          type: string
+          description: Street address
+        city:
+          type: string
+          description: City
+        state:
+          type: string
+          description: State or province
+        postalCode:
+          type: string
+          description: Postal / ZIP code
+        country:
+          type: string
+          description: Country code
+        url:
+          type: string
+          description: Website URL
